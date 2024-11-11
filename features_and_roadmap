@@ -1,0 +1,29 @@
+**Funkce aplikace (Features):**
+
+1. **Manuální přidávání výdajů** – Uživatelé mohou ručně zaznamenávat své výdaje.
+2. **Kategorizace výdajů** – Možnost zařadit výdaje do různých kategorií.
+3. **Přidávání vlastních typů výdajů** – Uživatelé mohou vytvářet nové kategorie výdajů dle potřeby.
+4. **Komentáře k výdajům** – Možnost přidat poznámky ke každému výdaji.
+5. **Výběr časového rámce pro vizualizaci** – Zobrazení výdajů v rámci zvoleného časového období.
+6. **Přidání času uhrazení výdajů** – Možnost přidat čas k jednotlivým výdajům.
+7. **Kategorizace způsobu platby** – Označení výdajů jako hotovost nebo platba kartou.
+8. **Notifikační systém**:
+   - Denní připomínka pro záznam výdajů.
+   - Měsíční souhrn výdajů.
+
+**Roadmapa aplikace:**
+
+1. **Verze 1.0**:
+   - Základní funkce pro manuální přidávání a kategorizaci výdajů.
+   - Možnost přidat vlastní typy výdajů a komentáře.
+   - Výběr časového rámce pro vizualizaci výdajů.
+
+2. **Verze 1.1**:
+   - Implementace funkce pro přidání času uhrazení výdajů.
+   - Rozšíření kategorizace na platby v hotovosti a kartou.
+
+3. **Verze 1.2**:
+   - Zavedení notifikačního systému s denními připomínkami pro záznam výdajů.
+
+4. **Verze 1.3**:
+   - Měsíční notifikace a souhrn útrat
