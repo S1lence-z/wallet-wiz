@@ -10,6 +10,9 @@ The process will involve the following steps:
 6. Design the UI (XML layout for the Add Expense page).
 7. Set up the Activity and bind data to the UI using the ViewModel.
 
+#### Communication with Room DB
+![android_room_db_diagram](android_room_dm_diagram.jpg)
+
 #### Poznámky
 - Definuje se entita (basically tabulka v db)
 - DAO -> zpřístupní CRUD operace na dané entitě, používá zabudované ORM
