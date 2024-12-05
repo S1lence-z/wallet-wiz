@@ -6,7 +6,7 @@ import com.example.walletwiz.data.entity.ExpenseCategory
 @Dao
 interface ExpenseCategoryDao {
     // Data Access Object class
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertExpenseCategory(expenseCategory: ExpenseCategory)
 
     @Query("SELECT * FROM expense_category")
