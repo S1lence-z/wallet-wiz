@@ -2,6 +2,7 @@ package com.example.walletwiz.data.dao
 
 import androidx.room.*
 import com.example.walletwiz.data.entity.Expense
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ExpenseDao {
@@ -10,7 +11,7 @@ interface ExpenseDao {
     suspend fun insertExpense(expense: Expense)
 
     @Query("SELECT * FROM expense")
-    suspend fun getAllExpenses(): List<Expense>
+    suspend fun getAllExpenses(): Flow<List<Expense>>
 
     @Query("SELECT * FROM expense WHERE id = :id")
     suspend fun getExpenseById(id: Int): Expense
