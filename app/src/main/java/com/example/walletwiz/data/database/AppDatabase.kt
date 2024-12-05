@@ -7,7 +7,7 @@ import com.example.walletwiz.data.dao.*
 
 @Database(entities = [Expense::class, ExpenseCategory::class], version = 1)
 @TypeConverters(Converters::class)
-abstract class AppDatabase {
+abstract class AppDatabase : RoomDatabase() {
     abstract fun expenseDao(): ExpenseDao
     abstract fun expenseCategoryDao(): ExpenseCategoryDao
 }
