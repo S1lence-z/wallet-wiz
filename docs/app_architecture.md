@@ -9,7 +9,7 @@ app/
 ├── java/com/yourpackage/walletwiz/
 │   ├── data/
 │   │   ├── database/             # Room DB, entities, DAO interfaces
-│   │   ├── model/                # Data models (Expense, Category)
+│   │   ├── entity/                # Data models (Expense, Category)
 │   │   ├── repository/           # Repositories for data handling
 │   │   └── preferences/          # SharedPreferences (for notification settings)
 │   ├── domain/
