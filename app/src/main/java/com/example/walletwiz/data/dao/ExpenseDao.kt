@@ -10,7 +10,7 @@ interface ExpenseDao {
     @Upsert
     suspend fun insertExpense(expense: Expense)
 
-    @Query("SELECT * FROM expense")
+    @Query("SELECT * FROM expense ORDER BY created_at DESC")
     suspend fun getAllExpenses(): Flow<List<Expense>>
 
     @Query("SELECT * FROM expense WHERE id = :id")
