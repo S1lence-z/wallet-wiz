@@ -11,7 +11,7 @@ interface ExpenseCategoryDao {
     suspend fun insertExpenseCategory(expenseCategory: ExpenseCategory)
 
     @Query("SELECT * FROM expense_category")
-    suspend fun getAllExpenseCategories(): Flow<List<ExpenseCategory>>
+    suspend fun getAllExpenseCategories(): List<ExpenseCategory>
 
     @Query("SELECT * FROM expense_category WHERE id = :id")
     suspend fun getExpenseCategoryById(id: Int): ExpenseCategory

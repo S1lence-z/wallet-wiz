@@ -9,11 +9,11 @@ import java.util.Date
         ForeignKey(
             entity = ExpenseCategory::class,
             parentColumns = ["id"],
-            childColumns = ["expenseCategoryId"],
+            childColumns = ["category"],
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = ["categoryId"])]
+    indices = [Index(value = ["category"])]
 )
 data class Expense(
     @PrimaryKey(autoGenerate = true)
@@ -21,9 +21,9 @@ data class Expense(
     @ColumnInfo(name = "amount")
     val amount: Double,
     @ColumnInfo(name = "category")
-    val expenseCategoryId: Int,
+    val expenseCategoryId: Int?,
     @ColumnInfo(name = "payment_method")
-    val paymentMethod: Enum<PaymentMethod>,
+    val paymentMethod: PaymentMethod,
     @ColumnInfo(name = "description")
     val description: String?,
     @ColumnInfo(name = "created_at")

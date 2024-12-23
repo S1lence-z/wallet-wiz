@@ -8,12 +8,15 @@ import com.example.walletwiz.states.ExpenseState
 import kotlinx.coroutines.flow.update
 import com.example.walletwiz.data.entity.Expense
 import androidx.lifecycle.viewModelScope
+import com.example.walletwiz.data.entity.PaymentMethod
 import kotlinx.coroutines.launch
+import java.util.Date
 
 class ExpenseViewModel(
     private val expenseDao: ExpenseDao,
 ): ViewModel() {
     private val _state = MutableStateFlow<ExpenseState>(ExpenseState())
+    val state get() = _state
 
     fun onEvent(event: ExpenseEvent) {
         when(event) {
@@ -21,15 +24,11 @@ class ExpenseViewModel(
                 _state.value = ExpenseState()
             }
             ExpenseEvent.SaveExpense -> {
-                val amount = _state.value.amount
-                val expenseCategoryId = _state.value.expenseCategoryId
-                val paymentMethod = _state.value.paymentMethod
-                val description = _state.value.description
-                val createdAt = _state.value.createdAt
-                // Check if all data is present
-                if (amount == 0.0 || expenseCategoryId == 0 || description == null) {
-                    return
-                }
+                val amount = 999.0
+                val expenseCategoryId = 1
+                val paymentMethod = PaymentMethod.CASH
+                val description = "Test vole"
+                val createdAt = Date(System.currentTimeMillis())
                 val newExpense = Expense(
                     amount = amount,
                     expenseCategoryId = expenseCategoryId,
