@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.update
 import com.example.walletwiz.data.entity.Expense
 import androidx.lifecycle.viewModelScope
 import com.example.walletwiz.data.entity.PaymentMethod
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -18,6 +20,7 @@ class ExpenseViewModel(
     private val _state = MutableStateFlow<ExpenseState>(ExpenseState())
     val state get() = _state
 
+    @OptIn(DelicateCoroutinesApi::class)
     fun onEvent(event: ExpenseEvent) {
         when(event) {
             ExpenseEvent.CancelExpense -> {
@@ -36,9 +39,8 @@ class ExpenseViewModel(
                     description = description,
                     createdAt = createdAt
                 )
-                viewModelScope.launch {
+                GlobalScope.launch {
                     expenseDao.insertExpense(newExpense)
-                    _state.value = ExpenseState()
                 }
             }
             is ExpenseEvent.SetAmount -> {

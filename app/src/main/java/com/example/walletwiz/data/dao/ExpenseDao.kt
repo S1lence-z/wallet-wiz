@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ExpenseDao {
     // Data Access Object class
-    @Upsert
+    @Insert
     suspend fun insertExpense(expense: Expense)
 
     @Query("SELECT * FROM expense ORDER BY created_at DESC")
