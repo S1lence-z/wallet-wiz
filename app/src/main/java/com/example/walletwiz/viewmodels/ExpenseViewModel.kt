@@ -1,5 +1,6 @@
 package com.example.walletwiz.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.walletwiz.data.dao.ExpenseDao
 import com.example.walletwiz.events.ExpenseEvent
@@ -27,19 +28,16 @@ class ExpenseViewModel(
                 _state.value = ExpenseState()
             }
             ExpenseEvent.SaveExpense -> {
-                val amount = 999.0
-                val expenseCategoryId = 1
-                val paymentMethod = PaymentMethod.CASH
-                val description = "Test vole"
-                val createdAt = Date(System.currentTimeMillis())
+                val state = _state.value
                 val newExpense = Expense(
-                    amount = amount,
-                    expenseCategoryId = expenseCategoryId,
-                    paymentMethod = paymentMethod,
-                    description = description,
-                    createdAt = createdAt
+                    id = 0,
+                    amount = state.amount,
+                    expenseCategoryId = state.expenseCategoryId,
+                    createdAt = state.createdAt,
+                    description = state.description,
+                    paymentMethod = state.paymentMethod
                 )
-                GlobalScope.launch {
+                viewModelScope.launch {
                     expenseDao.insertExpense(newExpense)
                 }
             }

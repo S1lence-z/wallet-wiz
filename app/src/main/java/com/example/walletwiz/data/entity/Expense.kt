@@ -4,20 +4,11 @@ import androidx.room.*
 import java.util.Date
 
 @Entity(
-    tableName = "expense",
-    foreignKeys = [
-        ForeignKey(
-            entity = ExpenseCategory::class,
-            parentColumns = ["id"],
-            childColumns = ["category"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ],
-    indices = [Index(value = ["category"])]
+    tableName = "expense"
 )
 data class Expense(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 1,
+    val id: Int,
     @ColumnInfo(name = "amount")
     val amount: Double,
     @ColumnInfo(name = "category")

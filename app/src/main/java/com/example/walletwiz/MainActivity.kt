@@ -21,31 +21,20 @@ import java.util.Date
 
 class MainActivity : AppCompatActivity() {
     private val db by lazy {
-        Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java,
-            "wallet.db"
-        ).build()
+        AppDatabase(this)
     }
 
-    private val viewModel by viewModels<ExpenseViewModel>(
-        factoryProducer = {
-            object : ViewModelProvider.Factory {
-                override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return ExpenseViewModel(db.expenseDao()) as T
-                }
-            }
-        }
-    )
+    private val expenseViewModel by lazy {
+        ExpenseViewModel(db.expenseDao())
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val state by viewModel.state.collectAsState()
             ExpenseScreen(
-                state = state,
-                onEvent = viewModel::onEvent
+                state = expenseViewModel.state.collectAsState().value,
+                onEvent = expenseViewModel::onEvent
             )
         }
     }
