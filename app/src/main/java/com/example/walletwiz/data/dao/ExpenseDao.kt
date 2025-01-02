@@ -2,11 +2,9 @@ package com.example.walletwiz.data.dao
 
 import androidx.room.*
 import com.example.walletwiz.data.entity.Expense
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ExpenseDao {
-    // Data Access Object class
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertExpense(expense: Expense)
 

@@ -8,7 +8,7 @@ import java.util.Date
 )
 data class Expense(
     @PrimaryKey(autoGenerate = true)
-    val id: Int,
+    val id: Int? = null,
     @ColumnInfo(name = "amount")
     val amount: Double,
     @ColumnInfo(name = "category")

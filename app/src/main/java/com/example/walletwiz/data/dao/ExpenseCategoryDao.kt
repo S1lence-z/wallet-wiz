@@ -2,7 +2,6 @@ package com.example.walletwiz.data.dao
 
 import androidx.room.*
 import com.example.walletwiz.data.entity.ExpenseCategory
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ExpenseCategoryDao {
