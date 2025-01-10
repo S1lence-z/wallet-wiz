@@ -1,11 +1,11 @@
 package com.example.walletwiz.data.entity
 
-import androidx.room.*;
+import androidx.room.*
 
 @Entity(tableName = "expense_category")
 data class ExpenseCategory(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 1,
+    val id: Int? = 0,
     @ColumnInfo(name = "name")
     val name: String,
     @ColumnInfo(name = "description")
