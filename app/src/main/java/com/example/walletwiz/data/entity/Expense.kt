@@ -6,6 +6,7 @@ import java.util.Date
 @Entity(
     tableName = "expense"
 )
+
 data class Expense(
     @PrimaryKey(autoGenerate = true)
     val id: Int? = null,

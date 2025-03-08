@@ -5,19 +5,19 @@ import com.example.walletwiz.data.entity.ExpenseCategory
 
 @Dao
 interface ExpenseCategoryDao {
-    // Data Access Object class
-    @Upsert
-    suspend fun insertExpenseCategory(expenseCategory: ExpenseCategory)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(expenseCategory: ExpenseCategory): Long  // Returns inserted ID
 
     @Query("SELECT * FROM expense_category")
-    suspend fun getAllExpenseCategories(): List<ExpenseCategory>
+    suspend fun getAllCategories(): List<ExpenseCategory>
 
     @Query("SELECT * FROM expense_category WHERE id = :id")
-    suspend fun getExpenseCategoryById(id: Int): ExpenseCategory
+    suspend fun getCategoryById(id: Int): ExpenseCategory?
 
     @Update
-    suspend fun updateExpenseCategory(expenseCategory: ExpenseCategory)
+    suspend fun update(expenseCategory: ExpenseCategory)
 
     @Delete
-    suspend fun deleteExpenseCategory(expenseCategory: ExpenseCategory)
+    suspend fun delete(expenseCategory: ExpenseCategory)
 }

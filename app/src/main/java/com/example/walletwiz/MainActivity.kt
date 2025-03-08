@@ -21,11 +21,18 @@ import java.util.Date
 
 class MainActivity : AppCompatActivity() {
     private val db by lazy {
-        AppDatabase(this)
+        Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java,
+            "walletwiz-db"
+        ).build()
     }
 
     private val expenseViewModel by lazy {
-        ExpenseViewModel(db.expenseDao())
+        ExpenseViewModel(
+            expenseDao = db.expenseDao(),
+            expenseCategoryDao = db.expenseCategoryDao() // <-- Pass this as well
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

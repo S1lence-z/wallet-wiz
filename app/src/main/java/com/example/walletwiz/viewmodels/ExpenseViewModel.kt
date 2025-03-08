@@ -1,23 +1,31 @@
 package com.example.walletwiz.viewmodels
 
 import androidx.lifecycle.ViewModel
-import com.example.walletwiz.data.dao.ExpenseDao
-import com.example.walletwiz.events.ExpenseEvent
-import kotlinx.coroutines.flow.MutableStateFlow
-import com.example.walletwiz.states.ExpenseState
-import kotlinx.coroutines.flow.update
-import com.example.walletwiz.data.entity.Expense
 import androidx.lifecycle.viewModelScope
+import com.example.walletwiz.data.dao.ExpenseDao
+import com.example.walletwiz.data.dao.ExpenseCategoryDao
+import com.example.walletwiz.data.entity.Expense
+import com.example.walletwiz.data.entity.ExpenseCategory
+import com.example.walletwiz.events.ExpenseEvent
+import com.example.walletwiz.states.ExpenseState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ExpenseViewModel(
     private val expenseDao: ExpenseDao,
-): ViewModel() {
-    private val _state = MutableStateFlow<ExpenseState>(ExpenseState())
+    private val expenseCategoryDao: ExpenseCategoryDao
+) : ViewModel() {
+
+    private val _state = MutableStateFlow(ExpenseState())
     val state get() = _state
 
+    init {
+        loadCategories()
+    }
+
     fun onEvent(event: ExpenseEvent) {
-        when(event) {
+        when (event) {
             ExpenseEvent.CancelExpense -> {
                 _state.value = ExpenseState()
             }
@@ -48,6 +56,30 @@ class ExpenseViewModel(
             }
             is ExpenseEvent.SetPaymentMethod -> {
                 _state.update { it.copy(paymentMethod = event.paymentMethod) }
+            }
+            is ExpenseEvent.CreateExpenseCategory -> {
+                createNewCategory(event.name)
+            }
+        }
+    }
+
+    private fun loadCategories() {
+        viewModelScope.launch {
+            val categories = expenseCategoryDao.getAllCategories()
+            _state.update { it.copy(categories = categories) }
+        }
+    }
+
+    private fun createNewCategory(name: String) {
+        viewModelScope.launch {
+            val newCategory = ExpenseCategory(name = name, description = null, color = "#000000")
+            val id = expenseCategoryDao.insert(newCategory).toInt()
+            val updatedCategory = newCategory.copy(id = id)
+            _state.update {
+                it.copy(
+                    categories = it.categories + updatedCategory,
+                    expenseCategoryId = id
+                )
             }
         }
     }

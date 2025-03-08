@@ -9,6 +9,7 @@ sealed interface ExpenseEvent {
     data class SetPaymentMethod(val paymentMethod: PaymentMethod): ExpenseEvent
     data class SetDescription(val description: String): ExpenseEvent
     data class SetCreatedAt(val createdAt: Date): ExpenseEvent
+    data class CreateExpenseCategory(val name: String) : ExpenseEvent
     object SaveExpense: ExpenseEvent
     object CancelExpense: ExpenseEvent
 }
