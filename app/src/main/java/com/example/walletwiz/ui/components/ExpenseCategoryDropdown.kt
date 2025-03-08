@@ -1,13 +1,14 @@
 package com.example.walletwiz.ui.components
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.walletwiz.data.entity.ExpenseCategory
 
-// ! ExposedDropdownMenuBox is an experimental class
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExpenseCategoryDropdown(
@@ -23,16 +24,28 @@ fun ExpenseCategoryDropdown(
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(text = "Expense Category", style = MaterialTheme.typography.labelMedium)
 
-        ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded }  // ✅ Toggles expansion correctly
+        ) {
             OutlinedTextField(
                 value = categories.find { it.id == selectedCategoryId }?.name ?: "Select a category",
                 onValueChange = {},
                 readOnly = true,
-                modifier = Modifier.fillMaxWidth(),
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
+                modifier = Modifier
+                    .menuAnchor(MenuAnchorType.PrimaryNotEditable)  // ✅ Allows clicking to open dropdown
+                    .fillMaxWidth(),
+                trailingIcon = {
+                    IconButton(onClick = { expanded = !expanded }) {
+                        Icon(Icons.Default.ArrowDropDown, contentDescription = "Expand category menu")
+                    }
+                }
             )
 
-            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
                 categories.forEach { category ->
                     DropdownMenuItem(
                         text = { Text(category.name) },

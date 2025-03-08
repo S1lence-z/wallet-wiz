@@ -21,17 +21,13 @@ import java.util.Date
 
 class MainActivity : AppCompatActivity() {
     private val db by lazy {
-        Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java,
-            "walletwiz-db"
-        ).build()
+        AppDatabase.invoke(this)  // Use singleton instance
     }
 
     private val expenseViewModel by lazy {
         ExpenseViewModel(
             expenseDao = db.expenseDao(),
-            expenseCategoryDao = db.expenseCategoryDao() // <-- Pass this as well
+            expenseCategoryDao = db.expenseCategoryDao()
         )
     }
 
@@ -46,3 +42,4 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
+
