@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.walletwiz.data.entity.ExpenseCategory
+import android.util.Log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -15,7 +16,7 @@ fun ExpenseCategoryDropdown(
     categories: List<ExpenseCategory>,
     selectedCategoryId: Int?,
     onCategorySelected: (Int) -> Unit,
-    onNewCategoryCreated: (String) -> Unit
+    onNewCategoryCreated: (String) -> Unit  // ✅ Ensure event is passed from UI
 ) {
     var expanded by remember { mutableStateOf(false) }
     var newCategoryName by remember { mutableStateOf("") }
@@ -26,14 +27,14 @@ fun ExpenseCategoryDropdown(
 
         ExposedDropdownMenuBox(
             expanded = expanded,
-            onExpandedChange = { expanded = !expanded }  // ✅ Toggles expansion correctly
+            onExpandedChange = { expanded = !expanded }
         ) {
             OutlinedTextField(
                 value = categories.find { it.id == selectedCategoryId }?.name ?: "Select a category",
                 onValueChange = {},
                 readOnly = true,
                 modifier = Modifier
-                    .menuAnchor(MenuAnchorType.PrimaryNotEditable)  // ✅ Allows clicking to open dropdown
+                    .menuAnchor(MenuAnchorType.PrimaryNotEditable)
                     .fillMaxWidth(),
                 trailingIcon = {
                     IconButton(onClick = { expanded = !expanded }) {
@@ -73,7 +74,8 @@ fun ExpenseCategoryDropdown(
             Button(
                 onClick = {
                     if (newCategoryName.isNotBlank()) {
-                        onNewCategoryCreated(newCategoryName)
+                        Log.d("ExpenseCategoryDropdown", "New category created: $newCategoryName") // ✅ Log for debugging
+                        onNewCategoryCreated(newCategoryName)  // ✅ Calls ViewModel event
                         isCreatingNew = false
                         newCategoryName = ""
                     }
@@ -85,3 +87,4 @@ fun ExpenseCategoryDropdown(
         }
     }
 }
+

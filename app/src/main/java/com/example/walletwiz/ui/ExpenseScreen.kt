@@ -53,8 +53,9 @@ fun ExpenseScreen(
                 categories = state.categories,
                 selectedCategoryId = state.expenseCategoryId,
                 onCategorySelected = { onEvent(ExpenseEvent.SetExpenseCategory(it)) },
-                onNewCategoryCreated = { onEvent(ExpenseEvent.CreateExpenseCategory(it)) }
+                onNewCategoryCreated = { onEvent(ExpenseEvent.CreateExpenseCategory(it)) }  // ✅ Ensure event is called
             )
+
 
             PaymentMethodDropdown(
                 selectedMethod = state.paymentMethod,
