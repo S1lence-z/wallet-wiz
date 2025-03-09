@@ -6,7 +6,7 @@ import com.example.walletwiz.data.entity.Expense
 @Dao
 interface ExpenseDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertExpense(expense: Expense)
+    suspend fun insertExpense(expense: Expense): Long  // ✅ Return inserted row ID
 
     @Query("SELECT * FROM expense ORDER BY created_at DESC")
     suspend fun getAllExpenses(): List<Expense>

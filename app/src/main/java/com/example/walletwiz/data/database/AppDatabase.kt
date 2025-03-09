@@ -11,10 +11,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @TypeConverters(Converters::class)
-@Database(entities = [Expense::class, ExpenseCategory::class], version = 1, exportSchema = false)
+@Database(entities = [Expense::class, ExpenseCategory::class, ExpenseTag::class, ExpenseTagCrossRef::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun expenseDao(): ExpenseDao
     abstract fun expenseCategoryDao(): ExpenseCategoryDao
+    abstract fun tagDao(): TagDao
 
     companion object {
         @Volatile
@@ -43,6 +44,7 @@ abstract class AppDatabase : RoomDatabase() {
                         }
                     }
                 })
+                .fallbackToDestructiveMigration()  // ✅ Deletes old DB if schema changes
                 .build()
     }
 }

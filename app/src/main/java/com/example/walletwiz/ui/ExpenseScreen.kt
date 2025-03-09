@@ -48,18 +48,22 @@ fun ExpenseScreen(
                 onValueChange = { onEvent(ExpenseEvent.SetDescription(it)) }
             )
 
-            // Expense Category Picker
             ExpenseCategoryDropdown(
                 categories = state.categories,
                 selectedCategoryId = state.expenseCategoryId,
                 onCategorySelected = { onEvent(ExpenseEvent.SetExpenseCategory(it)) },
-                onNewCategoryCreated = { onEvent(ExpenseEvent.CreateExpenseCategory(it)) }  // ✅ Ensure event is called
+                onNewCategoryCreated = { onEvent(ExpenseEvent.CreateExpenseCategory(it)) }
             )
-
 
             PaymentMethodDropdown(
                 selectedMethod = state.paymentMethod,
                 onMethodSelected = { onEvent(ExpenseEvent.SetPaymentMethod(it)) }
+            )
+
+            TagInput(
+                tags = state.selectedExpenseWithTags?.tags ?: emptyList(),
+                onTagAdded = { tag -> onEvent(ExpenseEvent.AddTagToExpense(state.selectedExpenseWithTags?.expense?.id ?: 0, tag)) },
+                onTagRemoved = { tag -> onEvent(ExpenseEvent.RemoveTagFromExpense(state.selectedExpenseWithTags?.expense?.id ?: 0, tag.id ?: 0)) }
             )
 
             DateSelector(

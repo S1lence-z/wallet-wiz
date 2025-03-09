@@ -27,7 +27,8 @@ class MainActivity : AppCompatActivity() {
     private val expenseViewModel by lazy {
         ExpenseViewModel(
             expenseDao = db.expenseDao(),
-            expenseCategoryDao = db.expenseCategoryDao()
+            expenseCategoryDao = db.expenseCategoryDao(),
+            tagDao = db.tagDao()
         )
     }
 
