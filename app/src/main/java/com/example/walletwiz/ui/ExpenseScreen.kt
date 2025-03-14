@@ -6,13 +6,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.walletwiz.states.ExpenseState
+import com.example.walletwiz.states.ExpenseStateOld
 import com.example.walletwiz.events.ExpenseEvent
 import com.example.walletwiz.ui.components.*
 
+
+//ExpenseState renamed to ExpenseStateOld, for my testing purposes, will delete later
+
 @Composable
 fun ExpenseScreen(
-    state: ExpenseState,
+    state: ExpenseStateOld,
     onEvent: (ExpenseEvent) -> Unit
 ) {
     Column(
@@ -84,6 +87,6 @@ fun ExpenseScreen(
     }
 }
 
-private fun isNewExpenseValid(state: ExpenseState): Boolean {
+private fun isNewExpenseValid(state: ExpenseStateOld): Boolean {
     return state.amount > 0.0
 }

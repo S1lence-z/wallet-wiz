@@ -10,7 +10,7 @@ import com.example.walletwiz.data.entity.Expense
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 
-class ExpenseViewModel(
+class ExpenseViewModel (
     private val expenseDao: ExpenseDao,
 ): ViewModel() {
     private val _state = MutableStateFlow<ExpenseState>(ExpenseState())
