@@ -69,6 +69,9 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
+    //For GRAPH ---- NEEDED.
+    //implementation(libs.androidplot.core)
+
     // Room DB dependencies
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)

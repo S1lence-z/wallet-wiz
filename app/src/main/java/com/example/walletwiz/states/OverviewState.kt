@@ -8,7 +8,7 @@ import java.util.Date
 data class OverviewState(
     val totalExpenses: Double = 0.0,
     val expensesByCategory: Map<ExpenseCategory, Double> = emptyMap(),
-    val recentExpenses: List<ExpenseState> = emptyList(), // ✅ Now has recent expenses
+    val recentExpenses: List<ExpenseState> = emptyList(),
     val isLoading: Boolean = false
 )
 

@@ -10,12 +10,14 @@ import com.example.walletwiz.states.ExpenseStateOld
 import com.example.walletwiz.events.ExpenseEvent
 import com.example.walletwiz.ui.components.*
 
+import com.example.walletwiz.states.ExpenseState
 
 //ExpenseState renamed to ExpenseStateOld, for my testing purposes, will delete later
 
 @Composable
 fun ExpenseScreen(
-    state: ExpenseStateOld,
+    //state: ExpenseStateOld,
+    state: ExpenseState,
     onEvent: (ExpenseEvent) -> Unit
 ) {
     Column(
@@ -87,6 +89,11 @@ fun ExpenseScreen(
     }
 }
 
+/*
 private fun isNewExpenseValid(state: ExpenseStateOld): Boolean {
+    return state.amount > 0.0
+}*/
+
+private fun isNewExpenseValid(state: ExpenseState): Boolean {
     return state.amount > 0.0
 }

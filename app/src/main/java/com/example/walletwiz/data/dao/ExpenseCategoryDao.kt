@@ -7,7 +7,7 @@ import com.example.walletwiz.data.entity.ExpenseCategory
 interface ExpenseCategoryDao {
     // Data Access Object class
     @Upsert
-    suspend fun insertExpenseCategory(expenseCategory: ExpenseCategory)
+    suspend fun insertExpenseCategory(expenseCategory: ExpenseCategory): Long //maybe long
 
     @Query("SELECT * FROM expense_category")
     suspend fun getAllExpenseCategories(): List<ExpenseCategory>
