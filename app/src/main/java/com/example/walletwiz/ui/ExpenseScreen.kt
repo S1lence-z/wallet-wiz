@@ -9,12 +9,17 @@ import androidx.compose.ui.unit.dp
 import com.example.walletwiz.states.ExpenseState
 import com.example.walletwiz.events.ExpenseEvent
 import com.example.walletwiz.ui.components.*
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun ExpenseScreen(
     state: ExpenseState,
     onEvent: (ExpenseEvent) -> Unit
 ) {
+    LaunchedEffect(Unit) {
+        onEvent(ExpenseEvent.CancelExpense)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -79,8 +84,4 @@ fun ExpenseScreen(
             }
         }
     }
-}
-
-private fun isNewExpenseValid(state: ExpenseState): Boolean {
-    return state.amount > 0.0
 }

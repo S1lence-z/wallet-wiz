@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import android.util.Log
+import java.time.Instant
+import java.util.Date
 
 class ExpenseViewModel(
     private val expenseDao: ExpenseDao,
@@ -25,15 +27,12 @@ class ExpenseViewModel(
 
     init {
         loadCategories()
-        loadAllTags() // ✅ Load all available tags at startup
+        loadAllTags()
     }
 
     fun onEvent(event: ExpenseEvent) {
         when (event) {
-            ExpenseEvent.CancelExpense -> {
-                _state.value = ExpenseState()
-            }
-            ExpenseEvent.SaveExpense -> {
+            is ExpenseEvent.SaveExpense -> {
                 saveExpense()
             }
             is ExpenseEvent.SetAmount -> {
@@ -64,12 +63,29 @@ class ExpenseViewModel(
             is ExpenseEvent.LoadTagsForExpense -> {
                 loadTagsForExpense(event.expenseId)
             }
+            is ExpenseEvent.CancelExpense -> {
+                setDefaultFields()
+            }
+        }
+    }
+
+    private fun setDefaultFields() {
+        _state.update {
+            it.copy(
+                amount = 0.0,
+                expenseCategoryId = 0,
+                paymentMethod = PaymentMethod.DEBIT_CARD,
+                description = null,
+                createdAt = Date.from(Instant.now()),
+                selectedExpenseWithTags = null,
+                selectedTags = emptyList()
+            )
         }
     }
 
     private fun saveExpense() {
         val state = _state.value
-        if (state.amount > 0 && state.expenseCategoryId != null) {
+        if (state.amount > 0 && state.expenseCategoryId != 0) {
             val newExpense = Expense(
                 amount = state.amount,
                 expenseCategoryId = state.expenseCategoryId,
