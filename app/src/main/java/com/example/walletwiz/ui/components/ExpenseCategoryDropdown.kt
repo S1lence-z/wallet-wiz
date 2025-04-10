@@ -56,7 +56,7 @@ fun ExpenseCategoryDropdown(
                         }
                     )
                 }
-                Divider()
+                HorizontalDivider()
                 DropdownMenuItem(
                     text = { Text("Create new category") },
                     onClick = { isCreatingNew = true; expanded = false }
