@@ -1,4 +1,4 @@
-package com.example.walletwiz.events
+/* package com.example.walletwiz.events
 
 import com.example.walletwiz.data.entity.PaymentMethod
 import java.util.Date
@@ -11,4 +11,21 @@ sealed interface ExpenseEvent {
     data class SetCreatedAt(val createdAt: Date): ExpenseEvent
     object SaveExpense: ExpenseEvent
     object CancelExpense: ExpenseEvent
+} */
+
+
+// app/src/main/java/com/example/walletwiz/events/ExpenseEvent.kt
+package com.example.walletwiz.events
+
+import com.example.walletwiz.data.entity.PaymentMethod
+import java.util.Date
+
+sealed interface ExpenseEvent {
+    object SaveExpense: ExpenseEvent
+    object CancelExpense: ExpenseEvent
+    data class SetAmount(val amount: Double): ExpenseEvent
+    data class SetDescription(val description: String?): ExpenseEvent
+    data class SetCreatedAt(val createdAt: Date): ExpenseEvent
+    data class SetPaymentMethod(val paymentMethod: PaymentMethod): ExpenseEvent
+    data class SetExpenseCategory(val expenseCategoryId: Int): ExpenseEvent // <--- NEW EVENT
 }
