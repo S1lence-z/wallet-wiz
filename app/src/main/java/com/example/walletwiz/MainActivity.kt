@@ -92,6 +92,7 @@ class MainActivity : AppCompatActivity() {
 */
 
 
+//SEC
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
@@ -146,6 +147,9 @@ import kotlinx.coroutines.Dispatchers
 
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+import androidx.compose.runtime.LaunchedEffect
+import com.example.walletwiz.events.ExpenseEvent
 
 
 class MainActivity : AppCompatActivity() {
@@ -243,7 +247,15 @@ class MainActivity : AppCompatActivity() {
                                 icon = { Screen.Overview.icon() },
                                 label = { Text(Screen.Overview.title) },
                                 selected = currentScreen == Screen.Overview,
-                                onClick = { currentScreen = Screen.Overview }
+
+                                // CHANGE !
+                                onClick = {
+                                    currentScreen = Screen.Overview
+                                    // <--- NEW: Trigger refresh when navigating to Overview
+                                    lifecycleScope.launch {
+                                        expenseOverviewViewModel.refreshOverviewData()
+                                    }
+                                }
                             )
                             // Navigation item for Add Expense Screen
                             NavigationBarItem(
@@ -262,11 +274,30 @@ class MainActivity : AppCompatActivity() {
                             val overviewState by expenseOverviewViewModel.state.collectAsState()
                             OverviewScreen(state = overviewState)
                         }
-                        Screen.AddExpense -> {
+                        /*Screen.AddExpense -> {
                             // Display ExpenseScreen for adding expenses
                             ExpenseScreen(
                                 state = expenseViewModel.state.collectAsState().value,
                                 onEvent = expenseViewModel::onEvent,
+                                categories = expenseCategories
+                            )
+                        }*/
+                        Screen.AddExpense -> {
+                            ExpenseScreen(
+                                state = expenseViewModel.state.collectAsState().value,
+                                onEvent = { event ->
+                                    expenseViewModel.onEvent(event)
+                                    // <--- NEW: After saving, refresh the overview data
+                                    if (event == ExpenseEvent.SaveExpense) {
+                                        lifecycleScope.launch {
+                                            // Give a moment for DB operation to complete, though often not strictly necessary
+                                            // delay(100)
+                                            expenseOverviewViewModel.refreshOverviewData()
+                                        }
+                                        // Optional: Navigate back to Overview after saving
+                                        currentScreen = Screen.Overview
+                                    }
+                                },
                                 categories = expenseCategories
                             )
                         }
@@ -417,3 +448,4 @@ class MainActivity : AppCompatActivity() {
     }
 
 }
+
