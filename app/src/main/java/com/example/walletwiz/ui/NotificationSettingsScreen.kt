@@ -1,6 +1,5 @@
 package com.example.walletwiz.ui
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -8,11 +7,13 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.walletwiz.events.NotificationSettingsEvent
 import com.example.walletwiz.states.NotificationSettingsState
 
 @Composable
 fun NotificationSettingsScreen(
     state: NotificationSettingsState,
+    onEvent: (NotificationSettingsEvent) -> Unit
 ) {
     // UI components for notification settings
     Column(modifier = Modifier.padding(16.dp)) {
@@ -22,12 +23,24 @@ fun NotificationSettingsScreen(
         Switch(
             checked = state.notificationsEnabled,
             onCheckedChange = { isChecked ->
-                Log.d("NotificationSettings", "Notifications enabled: $isChecked")
+                onEvent(NotificationSettingsEvent.SetNotificationsEnabled(isChecked))
             },
         )
         Text(text = "Enable Notifications")
 
-        // TODO: add switch for daily reminders
-        // TODO: add switch for weekly/monthly summaries
+        if (state.notificationsEnabled) {
+            // Daily reminder settings
+            Switch(
+                checked = state.dailyRemindersEnabled,
+                onCheckedChange = { isChecked ->
+                    onEvent(NotificationSettingsEvent.SetDailyReminderEnabled(isChecked))
+                },
+            )
+            Text(text = "Enable Daily Reminders")
+            // TODO: TimePickerDialog to set the reminder time
+            Text(text = "Daily Reminder Time: ${state.dailyReminderTime}")
+
+            // TODO: add switch for weekly/monthly summaries
+        }
     }
 }

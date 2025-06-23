@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.example.walletwiz.data.database.AppDatabase
+import com.example.walletwiz.data.NotificationSettingsRepository
 import androidx.activity.compose.setContent
 import com.example.walletwiz.viewmodels.ExpenseViewModel
 import com.example.walletwiz.ui.layout.*
@@ -14,6 +15,10 @@ import com.example.walletwiz.viewmodels.OverviewViewModel
 class MainActivity : AppCompatActivity() {
     private val db by lazy {
         AppDatabase.invoke(this)  // Use singleton instance
+    }
+
+    private val notificationSettingsRepository by lazy {
+        NotificationSettingsRepository(this)
     }
 
     private val expenseViewModel by lazy {
@@ -38,7 +43,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val notificationSettingsViewModel by lazy {
-        NotificationSettingsViewModel()
+        NotificationSettingsViewModel(
+            notificationSettingsRepository = notificationSettingsRepository
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

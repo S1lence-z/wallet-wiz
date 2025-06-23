@@ -41,7 +41,7 @@ fun MainLayout(
         ),
         NavItem(
             title = "Notifications",
-            icon = Icons.Default.Notifications,
+            icon = Icons.Default.Settings,
             route = "notifications"
         )
     )
@@ -105,7 +105,8 @@ fun ContentScreen(
             onEvent = expenseCategoryViewModel::onEvent
         )
         3 -> NotificationSettingsScreen(
-            state = notificationSettingsViewModel.state.collectAsState().value
+            state = notificationSettingsViewModel.state.collectAsState().value,
+            onEvent = notificationSettingsViewModel::onEvent
         )
         else -> {
             Text(text = "Invalid selection", modifier = modifier)
