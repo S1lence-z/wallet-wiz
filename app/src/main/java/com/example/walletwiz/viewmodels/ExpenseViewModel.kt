@@ -118,7 +118,7 @@ class ExpenseViewModel(
     private fun createNewCategory(name: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val newCategory = ExpenseCategory(name = name, description = null, color = "#000000")
-            val id = expenseCategoryDao.insert(newCategory).toInt()
+            val id = expenseCategoryDao.insertCategory(newCategory).toInt()
 
             Log.d("ExpenseViewModel", "Inserted Category ID: $id")
             println("Inserted Category ID: $id")

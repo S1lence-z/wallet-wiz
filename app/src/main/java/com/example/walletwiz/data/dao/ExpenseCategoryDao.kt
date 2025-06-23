@@ -7,7 +7,7 @@ import com.example.walletwiz.data.entity.ExpenseCategory
 interface ExpenseCategoryDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(expenseCategory: ExpenseCategory): Long  // ✅ Returns generated ID
+    suspend fun insertCategory(expenseCategory: ExpenseCategory): Long
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertDefaultCategories(expenseCategories: List<ExpenseCategory>)
@@ -19,8 +19,8 @@ interface ExpenseCategoryDao {
     suspend fun getCategoryById(id: Int): ExpenseCategory?
 
     @Update
-    suspend fun update(expenseCategory: ExpenseCategory)
+    suspend fun updateCategory(expenseCategory: ExpenseCategory)
 
     @Delete
-    suspend fun delete(expenseCategory: ExpenseCategory)
+    suspend fun deleteCategory(expenseCategory: ExpenseCategory)
 }

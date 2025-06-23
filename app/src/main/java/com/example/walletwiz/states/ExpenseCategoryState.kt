@@ -4,5 +4,6 @@ import com.example.walletwiz.data.entity.ExpenseCategory
 
 data class ExpenseCategoryState(
     val categories: List<ExpenseCategory> = emptyList(),
-    val isLoading: Boolean = false
+    val selectedCategory: ExpenseCategory? = null,
+    val isEditing: Boolean = false
 )

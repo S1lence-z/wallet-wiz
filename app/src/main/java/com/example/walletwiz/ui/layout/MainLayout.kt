@@ -93,7 +93,8 @@ fun ContentScreen(
             onEvent = expenseViewModel::onEvent
         )
         2 -> ExpenseCategoryScreen(
-            state = expenseCategoryViewModel.state.collectAsState().value
+            state = expenseCategoryViewModel.state.collectAsState().value,
+            onEvent = expenseCategoryViewModel::onEvent
         )
     }
 }
