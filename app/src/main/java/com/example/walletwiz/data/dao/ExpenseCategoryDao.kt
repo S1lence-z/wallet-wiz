@@ -2,6 +2,7 @@ package com.example.walletwiz.data.dao
 
 import androidx.room.*
 import com.example.walletwiz.data.entity.ExpenseCategory
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ExpenseCategoryDao {
@@ -13,7 +14,7 @@ interface ExpenseCategoryDao {
     suspend fun insertDefaultCategories(expenseCategories: List<ExpenseCategory>)
 
     @Query("SELECT * FROM expense_category")
-    suspend fun getAllCategories(): List<ExpenseCategory>
+    fun getAllCategories(): Flow<List<ExpenseCategory>>
 
     @Query("SELECT * FROM expense_category WHERE id = :id")
     suspend fun getCategoryById(id: Int): ExpenseCategory?

@@ -67,8 +67,9 @@ class ExpenseCategoryViewModel(
 
     private fun loadCategories() {
         viewModelScope.launch(Dispatchers.IO) {
-            val categories = expenseCategoryDao.getAllCategories()
-            _state.update { it.copy(categories = categories) }
+            expenseCategoryDao.getAllCategories().collect { categories ->
+                _state.update { it.copy(categories = categories) }
+            }
         }
     }
 }

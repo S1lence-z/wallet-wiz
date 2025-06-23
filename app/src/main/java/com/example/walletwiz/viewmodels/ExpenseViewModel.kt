@@ -110,8 +110,9 @@ class ExpenseViewModel(
 
     private fun loadCategories() {
         viewModelScope.launch(Dispatchers.IO) {
-            val categories = expenseCategoryDao.getAllCategories()
-            _state.update { it.copy(categories = categories) }
+            expenseCategoryDao.getAllCategories().collect { categories ->
+                _state.update { it.copy(categories = categories) }
+            }
         }
     }
 
@@ -120,20 +121,12 @@ class ExpenseViewModel(
             val newCategory = ExpenseCategory(name = name, description = null, color = "#000000")
             val id = expenseCategoryDao.insertCategory(newCategory).toInt()
 
-            Log.d("ExpenseViewModel", "Inserted Category ID: $id")
-            println("Inserted Category ID: $id")
-
             if (id > 0) {
-                val updatedCategory = newCategory.copy(id = id)
-
                 _state.update { currentState ->
                     currentState.copy(
-                        categories = currentState.categories + updatedCategory,
                         expenseCategoryId = id
                     )
                 }
-
-                loadCategories()
             } else {
                 Log.e("ExpenseViewModel", "Failed to insert category: $name")
             }

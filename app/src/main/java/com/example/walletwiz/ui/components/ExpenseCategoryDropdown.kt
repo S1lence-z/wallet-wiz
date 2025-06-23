@@ -16,7 +16,7 @@ fun ExpenseCategoryDropdown(
     categories: List<ExpenseCategory>,
     selectedCategoryId: Int?,
     onCategorySelected: (Int) -> Unit,
-    onNewCategoryCreated: (String) -> Unit  // ✅ Ensure event is passed from UI
+    onNewCategoryCreated: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     var newCategoryName by remember { mutableStateOf("") }
@@ -74,8 +74,7 @@ fun ExpenseCategoryDropdown(
             Button(
                 onClick = {
                     if (newCategoryName.isNotBlank()) {
-                        Log.d("ExpenseCategoryDropdown", "New category created: $newCategoryName") // ✅ Log for debugging
-                        onNewCategoryCreated(newCategoryName)  // ✅ Calls ViewModel event
+                        onNewCategoryCreated(newCategoryName)
                         isCreatingNew = false
                         newCategoryName = ""
                     }
