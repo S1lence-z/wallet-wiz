@@ -1,38 +1,39 @@
 package com.example.walletwiz.viewmodels
 
 import androidx.lifecycle.ViewModel
-import com.example.walletwiz.data.dao.ExpenseDao
-import com.example.walletwiz.events.ExpenseEvent
-import kotlinx.coroutines.flow.MutableStateFlow
-import com.example.walletwiz.states.ExpenseState
-import kotlinx.coroutines.flow.update
-import com.example.walletwiz.data.entity.Expense
 import androidx.lifecycle.viewModelScope
+import com.example.walletwiz.data.dao.ExpenseDao
+import com.example.walletwiz.data.dao.ExpenseCategoryDao
+import com.example.walletwiz.data.dao.TagDao
+import com.example.walletwiz.data.entity.*
+import com.example.walletwiz.events.ExpenseEvent
+import com.example.walletwiz.states.ExpenseState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import android.util.Log
+import java.time.Instant
+import java.util.Date
 
 class ExpenseViewModel(
     private val expenseDao: ExpenseDao,
-): ViewModel() {
-    private val _state = MutableStateFlow<ExpenseState>(ExpenseState())
+    private val expenseCategoryDao: ExpenseCategoryDao,
+    private val tagDao: TagDao
+) : ViewModel() {
+
+    private val _state = MutableStateFlow(ExpenseState())
     val state get() = _state
 
+    init {
+        loadCategories()
+        loadAllTags()
+    }
+
     fun onEvent(event: ExpenseEvent) {
-        when(event) {
-            ExpenseEvent.CancelExpense -> {
-                _state.value = ExpenseState()
-            }
-            ExpenseEvent.SaveExpense -> {
-                val state = _state.value
-                val newExpense = Expense(
-                    amount = state.amount,
-                    expenseCategoryId = state.expenseCategoryId,
-                    createdAt = state.createdAt,
-                    description = state.description,
-                    paymentMethod = state.paymentMethod
-                )
-                viewModelScope.launch {
-                    expenseDao.insertExpense(newExpense)
-                }
+        when (event) {
+            is ExpenseEvent.SaveExpense -> {
+                saveExpense()
             }
             is ExpenseEvent.SetAmount -> {
                 _state.update { it.copy(amount = event.amount) }
@@ -49,6 +50,142 @@ class ExpenseViewModel(
             is ExpenseEvent.SetPaymentMethod -> {
                 _state.update { it.copy(paymentMethod = event.paymentMethod) }
             }
+            is ExpenseEvent.CreateExpenseCategory -> {
+                createNewCategory(event.name)
+            }
+            is ExpenseEvent.AddTagToExpense -> {
+                addTagToExpense(event.expenseId, event.tagName)
+            }
+            is ExpenseEvent.RemoveTagFromExpense -> {
+                removeTagFromExpense(event.expenseId, event.tagId)
+            }
+            is ExpenseEvent.LoadTagsForExpense -> {
+                loadTagsForExpense(event.expenseId)
+            }
+            is ExpenseEvent.CancelExpense -> {
+                setDefaultFields()
+            }
+        }
+    }
+
+    private fun setDefaultFields() {
+        _state.update {
+            it.copy(
+                amount = 0.0,
+                expenseCategoryId = 0,
+                paymentMethod = PaymentMethod.DEBIT_CARD,
+                description = null,
+                createdAt = Date.from(Instant.now()),
+                selectedExpenseWithTags = null,
+                selectedTags = emptyList()
+            )
+        }
+    }
+
+    private fun saveExpense() {
+        val state = _state.value
+        if (state.amount > 0 && state.expenseCategoryId != 0) {
+            val newExpense = Expense(
+                amount = state.amount,
+                expenseCategoryId = state.expenseCategoryId,
+                createdAt = state.createdAt,
+                description = state.description,
+                paymentMethod = state.paymentMethod
+            )
+            viewModelScope.launch(Dispatchers.IO) {
+                val expenseId = expenseDao.insertExpense(newExpense).toInt()
+
+                if (expenseId > 0) {
+                    if (state.selectedTags.isNotEmpty()) {
+                        for (tag in state.selectedTags) {
+                            tagDao.insertExpenseTagCrossRef(ExpenseTagCrossRef(expenseId, tag.id))
+                        }
+                    }
+                } else {
+                    Log.e("ExpenseViewModel", "Failed to insert expense")
+                }
+            }
+        }
+    }
+
+    private fun loadCategories() {
+        viewModelScope.launch(Dispatchers.IO) {
+            expenseCategoryDao.getAllCategories().collect { categories ->
+                _state.update { it.copy(categories = categories) }
+            }
+        }
+    }
+
+    private fun createNewCategory(name: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val newCategory = ExpenseCategory(name = name, description = null, color = "#000000")
+            val id = expenseCategoryDao.insertCategory(newCategory).toInt()
+
+            if (id > 0) {
+                _state.update { currentState ->
+                    currentState.copy(
+                        expenseCategoryId = id
+                    )
+                }
+            } else {
+                Log.e("ExpenseViewModel", "Failed to insert category: $name")
+            }
+        }
+    }
+
+    // -----------------------------------
+    // 🔹 TAG MANAGEMENT FUNCTIONS
+    // -----------------------------------
+
+    private fun addTagToExpense(expenseId: Int, tagName: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (expenseId == 0) {
+                val tag = tagDao.getTagByName(tagName)
+
+                if (tag != null) {
+                    _state.update {
+                        if (it.selectedTags.any { t -> t.id == tag.id }) {
+                            it
+                        } else {
+                            it.copy(selectedTags = it.selectedTags + tag)
+                        }
+                    }
+                }
+            } else {
+                val existingTag = tagDao.getTagByName(tagName)
+                val tagId = existingTag?.id ?: tagDao.insertTag(ExpenseTag(name = tagName)).toInt()
+
+                tagDao.insertExpenseTagCrossRef(ExpenseTagCrossRef(expenseId, tagId))
+
+                loadTagsForExpense(expenseId)
+            }
+        }
+    }
+
+    private fun removeTagFromExpense(expenseId: Int, tagId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (expenseId == 0) {
+                _state.update {
+                    it.copy(selectedTags = it.selectedTags.filterNot { it.id == tagId })
+                }
+            } else {
+                tagDao.removeTagFromExpense(expenseId, tagId)
+                loadTagsForExpense(expenseId)
+            }
+        }
+    }
+
+    private fun loadTagsForExpense(expenseId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val expenseWithTags = tagDao.getExpenseWithTags(expenseId)
+            _state.update { it.copy(selectedExpenseWithTags = expenseWithTags) }
+        }
+    }
+
+    private fun loadAllTags() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val allTags = tagDao.getAllTags()
+            _state.update { it.copy(allTags = allTags) }
         }
     }
 }

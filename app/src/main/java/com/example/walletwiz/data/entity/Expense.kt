@@ -6,8 +6,10 @@ import java.util.Date
 @Entity(
     tableName = "expense"
 )
+
 data class Expense(
     @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "id")
     val id: Int? = null,
     @ColumnInfo(name = "amount")
     val amount: Double,
@@ -18,5 +20,7 @@ data class Expense(
     @ColumnInfo(name = "description")
     val description: String?,
     @ColumnInfo(name = "created_at")
-    val createdAt: Date
+    val createdAt: Date,
+    @ColumnInfo(name = "tags")
+    val tags: String = ""  // ✅ Store tag IDs as "1,2,3"
 )
