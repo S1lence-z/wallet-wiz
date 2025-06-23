@@ -1,8 +1,13 @@
-/*package com.example.walletwiz.data.dao
+
+/*
+package com.example.walletwiz.data.dao
 
 import androidx.room.*
 import com.example.walletwiz.data.entity.Expense
 
+
+
+// LOOK HERE to be sure
 @Dao
 interface ExpenseDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -33,7 +38,7 @@ import com.example.walletwiz.data.entity.Expense
 @Dao
 interface ExpenseDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertExpense(expense: Expense)
+    suspend fun insertExpense(expense: Expense): Long
 
     // THIS IS THE CRUCIAL LINE:
     // It MUST be 'suspend' and MUST return 'List<Expense>'

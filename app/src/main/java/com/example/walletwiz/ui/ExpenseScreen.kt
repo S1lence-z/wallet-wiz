@@ -13,7 +13,6 @@ import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun ExpenseScreen(
-    //state: ExpenseStateOld,
     state: ExpenseState,
     onEvent: (ExpenseEvent) -> Unit
 ) {
@@ -85,8 +84,4 @@ fun ExpenseScreen(
             }
         }
     }
-}
-
-private fun isNewExpenseValid(state: ExpenseState): Boolean {
-    return state.amount > 0.0
 }

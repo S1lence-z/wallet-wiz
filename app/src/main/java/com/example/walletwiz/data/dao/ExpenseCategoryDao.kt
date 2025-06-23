@@ -16,6 +16,10 @@ interface ExpenseCategoryDao {
     @Query("SELECT * FROM expense_category")
     fun getAllCategories(): Flow<List<ExpenseCategory>>
 
+    //for my purposes, might delete
+    @Query("SELECT * FROM expense_category")
+    suspend fun getAllExpenseCategories(): List<ExpenseCategory>
+
     @Query("SELECT * FROM expense_category WHERE id = :id")
     suspend fun getCategoryById(id: Int): ExpenseCategory?
 
