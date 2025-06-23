@@ -431,7 +431,11 @@ class MainActivity : AppCompatActivity() {
                 ).toInt()
                 Log.d(LOG_TAG, "Travel category inserted with ID: $travelCategoryId")
 
-                // Insert expenses and log their creation
+                val funCategoryId = categoryDao.insertExpenseCategory(
+                    ExpenseCategory(name = "Fun", description = "Hobbies, free-time activities", color = "#6495ED")
+                ).toInt()
+
+                // Insert expenses and log their creationS
                 expenseDao.insertExpense(
                     Expense(amount = 50.0, expenseCategoryId = foodCategoryId, paymentMethod = PaymentMethod.CASH, description = "Dinner", createdAt = Date())
                 )
@@ -441,6 +445,11 @@ class MainActivity : AppCompatActivity() {
                     Expense(amount = 120.0, expenseCategoryId = travelCategoryId, paymentMethod = PaymentMethod.CREDIT_CARD, description = "Taxi Ride", createdAt = Date())
                 )
                 Log.d(LOG_TAG, "Inserted expense: Taxi Ride (Amount: 120.0)")
+
+                expenseDao.insertExpense(
+                    Expense(amount = 10.0, expenseCategoryId = funCategoryId, paymentMethod = PaymentMethod.DEBIT_CARD, description = "Guitar Strings", createdAt = Date())
+                )
+                Log.d(LOG_TAG, "Inserted expense: Guitar Strings (Amount: 10.0)")
             } else {
                 Log.d(LOG_TAG, "Database already populated with categories. Skipping sample data insertion.")
             }

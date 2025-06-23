@@ -151,10 +151,16 @@ class ExpenseOverviewViewModel(
                 .sortedByDescending { it.createdAt }
                 .take(5) // Taking top 5 recent expenses
 
+            // --- MODIFIED LOGIC HERE ---
+            val allSortedExpenses = expenseStates.sortedByDescending { it.createdAt }
+            val recentExpensesLimited = allSortedExpenses.take(5) // Still keep a 'recent' list if desired
+
             _state.value = OverviewState(
                 totalExpenses = total,
                 expensesByCategory = expensesByCategory,
-                recentExpenses = recentExpenses
+                //recentExpenses = recentExpenses,
+                recentExpenses = recentExpensesLimited,
+                allExpenses = allSortedExpenses
             )
             Log.d(LOG_TAG, "Overview data refreshed successfully. Total expenses: $total")
 
