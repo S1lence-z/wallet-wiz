@@ -1,106 +1,15 @@
 package com.example.walletwiz
 
-/*
-// Original commented block from the first request, preserved as-is.
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
-import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import com.example.walletwiz.data.database.AppDatabase
-import com.example.walletwiz.ui.OverviewScreen
-import com.example.walletwiz.viewmodels.ExpenseOverviewViewModel
-import kotlinx.coroutines.launch
-
-import com.example.walletwiz.data.dao.ExpenseCategoryDao
-import com.example.walletwiz.data.dao.ExpenseDao
-import com.example.walletwiz.data.entity.Expense
-import com.example.walletwiz.data.entity.ExpenseCategory
-import com.example.walletwiz.data.entity.PaymentMethod
-import com.example.walletwiz.states.ExpenseState
-import com.example.walletwiz.states.OverviewState
-import java.util.Date
 import android.util.Log
-
-
-class MainActivity : AppCompatActivity() {
-
-
-    private val db by lazy {
-        AppDatabase.invoke(this).also {
-            Log.d("MainActivity", "Database initialized: $it")  // Log when the database is initialized
-        }
-    }
-
-    private val expenseOverviewViewModel by lazy {
-        ViewModelProvider(
-            this,
-            ExpenseOverviewViewModel.Factory(db.expenseDao(), db.expenseCategoryDao())
-        ).get(ExpenseOverviewViewModel::class.java)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        Log.d("MainActivity", "MainActivity created and initialized.")
-
-        enableEdgeToEdge()
-
-        // Populate database if needed
-        lifecycleScope.launch {
-            populateDatabase()
-        }
-
-        setContent {
-            MaterialTheme {
-                // Collect ViewModel state
-                val overviewState by expenseOverviewViewModel.state.collectAsState()
-
-                // Pass state to OverviewScreen
-                OverviewScreen(state = overviewState)
-            }
-        }
-    }
-
-    private suspend fun populateDatabase() {
-        val categoryDao = db.expenseCategoryDao()
-        val expenseDao = db.expenseDao()
-
-        if (categoryDao.getAllExpenseCategories().isEmpty()) {
-            val foodCategoryId = categoryDao.insertExpenseCategory(
-                ExpenseCategory(name = "Food", description = "Restaurant and groceries", color = "#FF5733")
-            ).toInt()
-
-            val travelCategoryId = categoryDao.insertExpenseCategory(
-                ExpenseCategory(name = "Travel", description = "Transportation expenses", color = "#33FF57")
-            ).toInt()
-
-            // Insert expenses using the retrieved IDs
-            expenseDao.insertExpense(
-                Expense(amount = 50.0, expenseCategoryId = foodCategoryId, paymentMethod = PaymentMethod.CASH, description = "Dinner", createdAt = Date())
-            )
-            expenseDao.insertExpense(
-                Expense(amount = 120.0, expenseCategoryId = travelCategoryId, paymentMethod = PaymentMethod.CREDIT_CARD, description = "Taxi Ride", createdAt = Date())
-            )
-        }
-    }
-}
-*/
-
-
-//SEC
-
-import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.room.Room
 import com.example.walletwiz.data.database.AppDatabase
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
@@ -112,45 +21,12 @@ import com.example.walletwiz.data.entity.PaymentMethod
 import com.example.walletwiz.ui.ExpenseScreen
 import com.example.walletwiz.ui.OverviewScreen
 import com.example.walletwiz.viewmodels.ExpenseViewModel
-import com.example.walletwiz.viewmodels.ExpenseOverviewViewModel
-import kotlinx.coroutines.launch
-import java.util.Date
-import com.example.walletwiz.states.ExpenseState
-import com.example.walletwiz.states.OverviewState
-import androidx.compose.material3.MaterialTheme
-import com.example.walletwiz.ui.OverviewScreen
-
-import androidx.compose.material3.Text
-import androidx.compose.material3.Scaffold // Import Scaffold
-import androidx.compose.material3.NavigationBar // Import NavigationBar
-import androidx.compose.material3.NavigationBarItem // Import NavigationBarItem
-import androidx.compose.material3.Icon // Import Icon
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Home
-
-
-import android.util.Log
-
-import androidx.activity.compose.setContent
-import androidx.activity.viewModels
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf // Import mutableStateOf
-import androidx.compose.runtime.remember // Import remember
-import androidx.compose.runtime.setValue // Import setValue
-
-
-import com.example.walletwiz.ui.OverviewScreen
+import com.example.walletwiz.ui.layout.*
+import com.example.walletwiz.viewmodels.ExpenseCategoryViewModel
+import com.example.walletwiz.viewmodels.OverviewViewModel
 import kotlinx.coroutines.Dispatchers
-
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
-import androidx.compose.runtime.LaunchedEffect
-import com.example.walletwiz.events.ExpenseEvent
-
+import java.util.Date
 
 class MainActivity : AppCompatActivity() {
 
@@ -176,6 +52,33 @@ class MainActivity : AppCompatActivity() {
 
     // Option 2: Database initialization using Room.databaseBuilder (currently active)
     private val db by lazy {
+        AppDatabase.invoke(this)  // Use singleton instance
+    }
+
+    private val expenseViewModel by lazy {
+        ExpenseViewModel(
+            expenseDao = db.expenseDao(),
+            expenseCategoryDao = db.expenseCategoryDao(),
+            tagDao = db.tagDao()
+        )
+    }
+
+    private val overviewViewModel by lazy {
+        OverviewViewModel(
+            expenseDao = db.expenseDao(),
+            expenseCategoryDao = db.expenseCategoryDao()
+        )
+    }
+
+    private val expenseCategoryViewModel by lazy {
+        ExpenseCategoryViewModel(
+            expenseCategoryDao = db.expenseCategoryDao()
+        )
+    }
+
+
+    /*  // Option 2: Database initialization using Room.databaseBuilder (currently active)
+    private val db by lazy {
         Log.d(LOG_TAG, "Initializing the database...")
         Room.databaseBuilder(
             applicationContext,
@@ -196,6 +99,7 @@ class MainActivity : AppCompatActivity() {
     private val expenseOverviewViewModel by lazy {
         ExpenseOverviewViewModel(db.expenseDao(), db.expenseCategoryDao())
     }
+*/
 
     // Define sealed class for navigation screens
     sealed class Screen(val route: String, val icon: @Composable () -> Unit, val title: String) {
@@ -228,149 +132,12 @@ class MainActivity : AppCompatActivity() {
 
         // --- Consolidating all UI setup into a single setContent call with navigation ---
         setContent {
-            MaterialTheme {
-                // State to manage the currently selected screen
-                var currentScreen by remember { mutableStateOf<Screen>(Screen.Overview) }
-
-                // <--- NEW: Collect categories state for ExpenseScreen
-                val expenseCategories by expenseViewModel.categories.collectAsState()
-
-                Scaffold(
-                    // Optional: Top AppBar for screen title
-                    topBar = {
-                        TopAppBar(title = { Text(currentScreen.title) })
-                    },
-                    bottomBar = {
-                        NavigationBar {
-                            // Navigation item for Overview Screen
-                            NavigationBarItem(
-                                icon = { Screen.Overview.icon() },
-                                label = { Text(Screen.Overview.title) },
-                                selected = currentScreen == Screen.Overview,
-
-                                // CHANGE !
-                                onClick = {
-                                    currentScreen = Screen.Overview
-                                    // <--- NEW: Trigger refresh when navigating to Overview
-                                    lifecycleScope.launch {
-                                        expenseOverviewViewModel.refreshOverviewData()
-                                    }
-                                }
-                            )
-                            // Navigation item for Add Expense Screen
-                            NavigationBarItem(
-                                icon = { Screen.AddExpense.icon() },
-                                label = { Text(Screen.AddExpense.title) },
-                                selected = currentScreen == Screen.AddExpense,
-                                onClick = { currentScreen = Screen.AddExpense }
-                            )
-                        }
-                    }
-                ) { paddingValues ->
-                    // Content based on the selected screen
-                    when (currentScreen) {
-                        Screen.Overview -> {
-                            // Collect state from ExpenseOverviewViewModel for OverviewScreen
-                            val overviewState by expenseOverviewViewModel.state.collectAsState()
-                            OverviewScreen(state = overviewState)
-                        }
-                        /*Screen.AddExpense -> {
-                            // Display ExpenseScreen for adding expenses
-                            ExpenseScreen(
-                                state = expenseViewModel.state.collectAsState().value,
-                                onEvent = expenseViewModel::onEvent,
-                                categories = expenseCategories
-                            )
-                        }*/
-                        Screen.AddExpense -> {
-                            ExpenseScreen(
-                                state = expenseViewModel.state.collectAsState().value,
-                                onEvent = { event ->
-                                    expenseViewModel.onEvent(event)
-                                    // <--- NEW: After saving, refresh the overview data
-                                    if (event == ExpenseEvent.SaveExpense) {
-                                        lifecycleScope.launch {
-                                            // Give a moment for DB operation to complete, though often not strictly necessary
-                                            // delay(100)
-                                            expenseOverviewViewModel.refreshOverviewData()
-                                        }
-                                        // Optional: Navigate back to Overview after saving
-                                        currentScreen = Screen.Overview
-                                    }
-                                },
-                                categories = expenseCategories
-                            )
-                        }
-                    }
-                }
-            }
+            MainLayout(
+                expenseViewModel = expenseViewModel,
+                overviewViewModel = overviewViewModel,
+                expenseCategoryViewModel = expenseCategoryViewModel
+            )
         }
-
-
-        /*
-        // --- PREVIOUSLY ACTIVE: Old setContent for Expense Screen (now integrated into navigation) ---
-        // This block is commented out as its functionality is now part of the `Scaffold` above.
-        // setContent {
-        //     ExpenseScreen(
-        //         state = expenseViewModel.state.collectAsState().value,
-        //         onEvent = expenseViewModel::onEvent
-        //     )
-        // }
-        */
-
-        /*
-        // --- PREVIOUSLY ACTIVE: Old setContent for List View Content (now integrated into navigation) ---
-        // This block is commented out as its functionality is now part of the `Scaffold` above.
-        // setContent {
-        //     MaterialTheme {
-        //         ListViewContent()
-        //     }
-        // }
-        */
-
-        /*
-        // --- PREVIOUSLY ACTIVE: Old setContent for Graph View Content (now commented out for clarity) ---
-        // This block is commented out as its functionality can be integrated into the Scaffold if needed.
-        // setContent {
-        //     MaterialTheme {
-        //         GraphViewContent()
-        //     }
-        // }
-        */
-
-        /*
-        // --- PREVIOUSLY ACTIVE: Old setContent for main Overview (now integrated into navigation) ---
-        // This block is commented out as its functionality is now part of the `Scaffold` above.
-        // setContent {
-        //     MaterialTheme {
-        //         val overviewState by expenseOverviewViewModel.state.collectAsState()
-        //         OverviewScreen(state = overviewState)
-        //     }
-        // }
-        */
-
-        /*
-        // --- PREVIOUSLY ACTIVE: Old setContent for Mock Data View (now commented out for clarity) ---
-        // This block is commented out, as it was primarily for testing UI in isolation.
-        // setContent {
-        //     MaterialTheme {
-        //         val mockState = OverviewState(
-        //             totalExpenses = 500.0,
-        //             expensesByCategory = mapOf(
-        //                 ExpenseCategory(name = "Food", description = "Restaurant and groceries", color = "#FF5733") to 200.0,
-        //                 ExpenseCategory(name = "Travel", description = "Transportation expenses", color = "#33FF57") to 300.0
-        //             ),
-        //             recentExpenses = listOf(
-        //                 ExpenseState(amount = 100.0, expenseCategoryId = 1, paymentMethod = PaymentMethod.CASH, description = "Dinner", createdAt = Date()),
-        //                 ExpenseState(amount = 150.0, expenseCategoryId = 2, paymentMethod = PaymentMethod.CREDIT_CARD, description = "Taxi Ride", createdAt = Date()),
-        //                 ExpenseState(amount = 150.0, expenseCategoryId = 2, paymentMethod = PaymentMethod.CREDIT_CARD, description = "Taxi Ride2", createdAt = Date()),
-        //                 ExpenseState(amount = 150.0, expenseCategoryId = 2, paymentMethod = PaymentMethod.CREDIT_CARD, description = "Taxi Ride3", createdAt = Date())
-        //             )
-        //         )
-        //         OverviewScreen(state = mockState)
-        //     }
-        // }
-        */
     }
 
     // Composable for ListViewContent, now integrated directly into the main setContent's `when` statement
@@ -458,3 +225,82 @@ class MainActivity : AppCompatActivity() {
 
 }
 
+
+        /*setContent {
+            MaterialTheme {
+                // State to manage the currently selected screen
+                var currentScreen by remember { mutableStateOf<Screen>(Screen.Overview) }
+
+                // <--- NEW: Collect categories state for ExpenseScreen
+                val expenseCategories by expenseViewModel.categories.collectAsState()
+
+                Scaffold(
+                    // Optional: Top AppBar for screen title
+                    topBar = {
+                        TopAppBar(title = { Text(currentScreen.title) })
+                    },
+                    bottomBar = {
+                        NavigationBar {
+                            // Navigation item for Overview Screen
+                            NavigationBarItem(
+                                icon = { Screen.Overview.icon() },
+                                label = { Text(Screen.Overview.title) },
+                                selected = currentScreen == Screen.Overview,
+
+                                // CHANGE !
+                                onClick = {
+                                    currentScreen = Screen.Overview
+                                    // <--- NEW: Trigger refresh when navigating to Overview
+                                    lifecycleScope.launch {
+                                        expenseOverviewViewModel.refreshOverviewData()
+                                    }
+                                }
+                            )
+                            // Navigation item for Add Expense Screen
+                            NavigationBarItem(
+                                icon = { Screen.AddExpense.icon() },
+                                label = { Text(Screen.AddExpense.title) },
+                                selected = currentScreen == Screen.AddExpense,
+                                onClick = { currentScreen = Screen.AddExpense }
+                            )
+                        }
+                    }
+                ) { paddingValues ->
+                    // Content based on the selected screen
+                    when (currentScreen) {
+                        Screen.Overview -> {
+                            // Collect state from ExpenseOverviewViewModel for OverviewScreen
+                            val overviewState by expenseOverviewViewModel.state.collectAsState()
+                            OverviewScreen(state = overviewState)
+                        }
+                        /*Screen.AddExpense -> {
+                            // Display ExpenseScreen for adding expenses
+                            ExpenseScreen(
+                                state = expenseViewModel.state.collectAsState().value,
+                                onEvent = expenseViewModel::onEvent,
+                                categories = expenseCategories
+                            )
+                        }*/
+                        Screen.AddExpense -> {
+                            ExpenseScreen(
+                                state = expenseViewModel.state.collectAsState().value,
+                                onEvent = { event ->
+                                    expenseViewModel.onEvent(event)
+                                    // <--- NEW: After saving, refresh the overview data
+                                    if (event == ExpenseEvent.SaveExpense) {
+                                        lifecycleScope.launch {
+                                            // Give a moment for DB operation to complete, though often not strictly necessary
+                                            // delay(100)
+                                            expenseOverviewViewModel.refreshOverviewData()
+                                        }
+                                        // Optional: Navigate back to Overview after saving
+                                        currentScreen = Screen.Overview
+                                    }
+                                },
+                                categories = expenseCategories
+                            )
+                        }
+                    }
+                }
+            }
+        } */

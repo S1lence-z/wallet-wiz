@@ -5,8 +5,7 @@ import androidx.room.*
 @Entity(tableName = "expense_category")
 data class ExpenseCategory(
     @PrimaryKey(autoGenerate = true)
-    //val id: Int? = 0,
-    val id: Int = 0,
+    val id: Int? = null,
     @ColumnInfo(name = "name")
     val name: String,
     @ColumnInfo(name = "description")
