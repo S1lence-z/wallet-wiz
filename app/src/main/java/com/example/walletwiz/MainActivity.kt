@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import com.example.walletwiz.viewmodels.ExpenseViewModel
 import com.example.walletwiz.ui.layout.*
 import com.example.walletwiz.viewmodels.ExpenseCategoryViewModel
+import com.example.walletwiz.viewmodels.NotificationSettingsViewModel
 import com.example.walletwiz.viewmodels.OverviewViewModel
 
 class MainActivity : AppCompatActivity() {
@@ -36,6 +37,10 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    private val notificationSettingsViewModel by lazy {
+        NotificationSettingsViewModel()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -43,7 +48,8 @@ class MainActivity : AppCompatActivity() {
             MainLayout(
                 expenseViewModel = expenseViewModel,
                 overviewViewModel = overviewViewModel,
-                expenseCategoryViewModel = expenseCategoryViewModel
+                expenseCategoryViewModel = expenseCategoryViewModel,
+                notificationSettingsViewModel = notificationSettingsViewModel
             )
         }
     }

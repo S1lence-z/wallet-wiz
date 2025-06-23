@@ -20,7 +20,8 @@ import com.example.walletwiz.viewmodels.*
 fun MainLayout(
     expenseViewModel: ExpenseViewModel,
     overviewViewModel: OverviewViewModel,
-    expenseCategoryViewModel: ExpenseCategoryViewModel
+    expenseCategoryViewModel: ExpenseCategoryViewModel,
+    notificationSettingsViewModel: NotificationSettingsViewModel
     ) {
     val navItems = listOf(
         NavItem(
@@ -37,6 +38,11 @@ fun MainLayout(
             title = "Categories",
             icon = Icons.Default.Add,
             route = "expenseCategories"
+        ),
+        NavItem(
+            title = "Notifications",
+            icon = Icons.Default.Notifications,
+            route = "notifications"
         )
     )
 
@@ -71,7 +77,8 @@ fun MainLayout(
             selectedIndex = selectedIndex,
             expenseViewModel = expenseViewModel,
             overviewViewModel = overviewViewModel,
-            expenseCategoryViewModel = expenseCategoryViewModel
+            expenseCategoryViewModel = expenseCategoryViewModel,
+            notificationSettingsViewModel = notificationSettingsViewModel
         )
     }
 }
@@ -82,7 +89,8 @@ fun ContentScreen(
     selectedIndex: Int,
     expenseViewModel: ExpenseViewModel,
     overviewViewModel: OverviewViewModel,
-    expenseCategoryViewModel: ExpenseCategoryViewModel
+    expenseCategoryViewModel: ExpenseCategoryViewModel,
+    notificationSettingsViewModel: NotificationSettingsViewModel
     ) {
     when (selectedIndex) {
         0 -> OverviewScreen(
@@ -96,5 +104,11 @@ fun ContentScreen(
             state = expenseCategoryViewModel.state.collectAsState().value,
             onEvent = expenseCategoryViewModel::onEvent
         )
+        3 -> NotificationSettingsScreen(
+            state = notificationSettingsViewModel.state.collectAsState().value
+        )
+        else -> {
+            Text(text = "Invalid selection", modifier = modifier)
+        }
     }
 }
