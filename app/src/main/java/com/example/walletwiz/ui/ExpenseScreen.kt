@@ -66,7 +66,7 @@ fun ExpenseScreen(
             )
 
             TagInput(
-                tags = state.selectedExpenseWithTags?.tags ?: emptyList(),
+                tags = state.selectedExpenseWithTags?.tags ?: state.selectedTags,
                 onTagAdded = { tag -> onEvent(ExpenseEvent.AddTagToExpense(state.selectedExpenseWithTags?.expense?.id ?: 0, tag)) },
                 onTagRemoved = { tag -> onEvent(ExpenseEvent.RemoveTagFromExpense(state.selectedExpenseWithTags?.expense?.id ?: 0, tag.id ?: 0)) }
             )

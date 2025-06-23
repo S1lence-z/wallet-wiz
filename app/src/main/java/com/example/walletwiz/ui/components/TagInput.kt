@@ -4,8 +4,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
@@ -13,9 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
 import com.example.walletwiz.data.entity.ExpenseTag
-import kotlinx.coroutines.flow.update
 
 @Composable
 fun TagInput(
@@ -43,7 +39,7 @@ fun TagInput(
                         tagInput = ""
                     }
                 },
-                modifier = Modifier.padding(start = 8.dp)
+                modifier = Modifier.padding(start = 8.dp).align(Alignment.CenterVertically)
             ) {
                 Text("Add")
             }
@@ -65,10 +61,10 @@ fun TagInput(
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = tag.name, modifier = Modifier.padding(end = 8.dp))
+                        Text(text = tag.name, modifier = Modifier.padding(start = 8.dp, end = 16.dp))
                         IconButton(
                             onClick = { onTagRemoved(tag) },
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(32.dp)
                         ) {
                             Icon(Icons.Default.Close, contentDescription = "Remove tag")
                         }

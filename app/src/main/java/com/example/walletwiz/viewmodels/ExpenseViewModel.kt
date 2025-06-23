@@ -51,7 +51,6 @@ class ExpenseViewModel(
                 _state.update { it.copy(paymentMethod = event.paymentMethod) }
             }
             is ExpenseEvent.CreateExpenseCategory -> {
-                Log.d("ExpenseViewModel", "CreateExpenseCategory event received: ${event.name}")
                 createNewCategory(event.name)
             }
             is ExpenseEvent.AddTagToExpense -> {
@@ -96,10 +95,11 @@ class ExpenseViewModel(
             viewModelScope.launch(Dispatchers.IO) {
                 val expenseId = expenseDao.insertExpense(newExpense).toInt()
 
-                // ✅ Save associated tags if they exist
-                if (state.selectedTags.isNotEmpty()) {
-                    for (tag in state.selectedTags) {
-                        addTagToExpense(expenseId, tag.name)
+                if (expenseId > 0) {
+                    if (state.selectedTags.isNotEmpty()) {
+                        for (tag in state.selectedTags) {
+                            tagDao.insertExpenseTagCrossRef(ExpenseTagCrossRef(expenseId, tag.id))
+                        }
                     }
                 } else {
                     Log.e("ExpenseViewModel", "Failed to insert expense")
@@ -146,19 +146,39 @@ class ExpenseViewModel(
 
     private fun addTagToExpense(expenseId: Int, tagName: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val existingTag = tagDao.getTagByName(tagName)
-            val tagId = existingTag?.id ?: tagDao.insertTag(ExpenseTag(name = tagName)).toInt()
+            if (expenseId == 0) {
+                val tag = tagDao.getTagByName(tagName)
 
-            tagDao.insertExpenseTagCrossRef(ExpenseTagCrossRef(expenseId, tagId))
+                if (tag != null) {
+                    _state.update {
+                        if (it.selectedTags.any { t -> t.id == tag.id }) {
+                            it
+                        } else {
+                            it.copy(selectedTags = it.selectedTags + tag)
+                        }
+                    }
+                }
+            } else {
+                val existingTag = tagDao.getTagByName(tagName)
+                val tagId = existingTag?.id ?: tagDao.insertTag(ExpenseTag(name = tagName)).toInt()
 
-            loadTagsForExpense(expenseId) // ✅ Refresh tags for expense
+                tagDao.insertExpenseTagCrossRef(ExpenseTagCrossRef(expenseId, tagId))
+
+                loadTagsForExpense(expenseId)
+            }
         }
     }
 
     private fun removeTagFromExpense(expenseId: Int, tagId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            tagDao.removeTagFromExpense(expenseId, tagId)
-            loadTagsForExpense(expenseId) // ✅ Refresh tags for expense
+            if (expenseId == 0) {
+                _state.update {
+                    it.copy(selectedTags = it.selectedTags.filterNot { it.id == tagId })
+                }
+            } else {
+                tagDao.removeTagFromExpense(expenseId, tagId)
+                loadTagsForExpense(expenseId)
+            }
         }
     }
 
