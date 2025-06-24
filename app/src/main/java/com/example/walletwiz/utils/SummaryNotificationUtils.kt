@@ -12,7 +12,7 @@ object SummaryNotificationUtils {
         val repeatInterval = when (frequency) {
             Frequency.DAILY -> 1L
             Frequency.WEEKLY -> 7L
-            Frequency.MONTHLY -> 30L // Approximate
+            Frequency.MONTHLY -> 30L
         }
         val timeUnit = TimeUnit.DAYS
 
