@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.walletwiz.utils.Currency
 import com.example.walletwiz.utils.TimePeriod
 import com.example.walletwiz.states.ExpenseState
@@ -94,16 +95,8 @@ fun OverviewScreen(
             }
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(4.dp))
 
-        Text(
-            text = "Expenses (${
-                if (state.selectedTimePeriod == TimePeriod.ALL_TIME) "All Time"
-                else state.selectedTimePeriod.name.lowercase().replaceFirstChar { it.titlecase() }
-            })",
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
 
         if (state.allExpenses.isEmpty()) {
             Text("No expenses recorded for this period.")
@@ -155,9 +148,9 @@ fun TimePeriodSelector(
     modifier: Modifier = Modifier
 ) {
     val periods = listOf(
-        TimePeriod.DAY to "D",
-        TimePeriod.WEEK to "W",
-        TimePeriod.MONTH to "M",
+        TimePeriod.DAY to "Day",
+        TimePeriod.WEEK to "Week",
+        TimePeriod.MONTH to "Month",
         TimePeriod.ALL_TIME to "All"
     )
 
@@ -226,7 +219,7 @@ fun ExpenseListItem(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "${expenseState.categoryName ?: "Uncategorized"} - ${expenseState.paymentMethod} - ${formatDate(expenseState.createdAt.time)}",
+                    text = "${expenseState.categoryName ?: "Uncategorized"} - ${expenseState.paymentMethod.toReadableString()} - ${formatDate(expenseState.createdAt.time)}",
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
