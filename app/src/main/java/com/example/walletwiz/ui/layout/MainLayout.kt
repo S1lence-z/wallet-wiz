@@ -19,9 +19,10 @@ import com.example.walletwiz.viewmodels.*
 @Composable
 fun MainLayout(
     expenseViewModel: ExpenseViewModel,
-    overviewViewModel: OverviewViewModel,
+    overviewViewModel: ExpenseOverviewViewModel,
     expenseCategoryViewModel: ExpenseCategoryViewModel,
     notificationSettingsViewModel: NotificationSettingsViewModel
+
     ) {
     val navItems = listOf(
         NavItem(
@@ -88,13 +89,14 @@ fun ContentScreen(
     modifier: Modifier = Modifier,
     selectedIndex: Int,
     expenseViewModel: ExpenseViewModel,
-    overviewViewModel: OverviewViewModel,
+    overviewViewModel: ExpenseOverviewViewModel,
     expenseCategoryViewModel: ExpenseCategoryViewModel,
     notificationSettingsViewModel: NotificationSettingsViewModel
     ) {
     when (selectedIndex) {
         0 -> OverviewScreen(
-            state = overviewViewModel.state.collectAsState().value
+            state = overviewViewModel.state.collectAsState().value,
+            overviewViewModel = overviewViewModel
         )
         1 -> ExpenseScreen(
             state = expenseViewModel.state.collectAsState().value,

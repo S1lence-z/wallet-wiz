@@ -133,10 +133,6 @@ class ExpenseViewModel(
         }
     }
 
-    // -----------------------------------
-    // 🔹 TAG MANAGEMENT FUNCTIONS
-    // -----------------------------------
-
     private fun addTagToExpense(expenseId: Int, tagName: String) {
         viewModelScope.launch(Dispatchers.IO) {
             if (expenseId == 0) {

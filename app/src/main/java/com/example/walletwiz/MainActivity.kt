@@ -10,11 +10,11 @@ import com.example.walletwiz.viewmodels.ExpenseViewModel
 import com.example.walletwiz.ui.layout.*
 import com.example.walletwiz.viewmodels.ExpenseCategoryViewModel
 import com.example.walletwiz.viewmodels.NotificationSettingsViewModel
-import com.example.walletwiz.viewmodels.OverviewViewModel
+import com.example.walletwiz.viewmodels.ExpenseOverviewViewModel
 
 class MainActivity : AppCompatActivity() {
     private val db by lazy {
-        AppDatabase.invoke(this)  // Use singleton instance
+        AppDatabase.invoke(this)
     }
 
     private val notificationSettingsRepository by lazy {
@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val overviewViewModel by lazy {
-        OverviewViewModel(
+        ExpenseOverviewViewModel(
             expenseDao = db.expenseDao(),
             expenseCategoryDao = db.expenseCategoryDao()
         )
@@ -62,4 +62,3 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
-

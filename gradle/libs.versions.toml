@@ -41,6 +41,9 @@ androidx-activity-compose = { group = "androidx.activity", name = "activity-comp
 kotlin-ksp = { group = "com.google.devtools.ksp", name = "ksp", version.ref = "kspVersion" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version= "1.1.7" }
 
+# Adding the library to the version catalog
+# androidplot-core = { module = "com.androidplot:androidplot-core", version.ref = "androidplot" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
