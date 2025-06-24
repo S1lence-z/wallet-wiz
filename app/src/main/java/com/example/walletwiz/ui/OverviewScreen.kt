@@ -15,15 +15,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.walletwiz.utils.Currency
+import com.example.walletwiz.utils.TimePeriod
 import com.example.walletwiz.states.ExpenseState
 import com.example.walletwiz.states.OverviewState
 import com.example.walletwiz.ui.components.PieChart
 import com.example.walletwiz.ui.components.PieChartSlice
 import com.example.walletwiz.ui.components.toComposeColor
+import com.example.walletwiz.utils.formatCurrency
 import com.example.walletwiz.viewmodels.ExpenseOverviewViewModel
 import java.text.SimpleDateFormat
-import com.example.walletwiz.utils.Currency
-import com.example.walletwiz.utils.formatCurrency
 import java.util.Date
 import java.util.Locale
 
@@ -47,7 +48,7 @@ fun OverviewScreen(
             modifier = Modifier.padding(bottom = 16.dp)
         ) {
             Text(
-                text = "Total Expenses:", // Label
+                text = "Total Expenses:",
                 style = MaterialTheme.typography.headlineSmall,
                 textAlign = TextAlign.Center
             )
@@ -77,20 +78,36 @@ fun OverviewScreen(
             emptyList()
         }
 
-        PieChart(slices = pieChartSlices, modifier = Modifier
-            .fillMaxWidth()
-            .height(300.dp))
+        PieChart(
+            slices = pieChartSlices,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp)
+        )
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        TimePeriodSelector(
+            selectedPeriod = state.selectedTimePeriod,
+            onPeriodSelected = { period ->
+                overviewViewModel.setTimePeriod(period)
+            }
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         Text(
-            text = "All Expenses",
+            text = "Expenses (${
+                if (state.selectedTimePeriod == TimePeriod.ALL_TIME) "All Time"
+                else state.selectedTimePeriod.name.lowercase().replaceFirstChar { it.titlecase() }
+            })",
             style = MaterialTheme.typography.headlineSmall,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
+        // --- Expenses List ---
         if (state.allExpenses.isEmpty()) {
-            Text("No expenses recorded yet. Add some!")
+            Text("No expenses recorded for this period.")
         } else {
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
                 items(
@@ -102,6 +119,7 @@ fun OverviewScreen(
                     ExpenseListItem(
                         expenseState = expense,
                         onEditClicked = { expenseToEdit ->
+                            // TODO: Implement navigation or dialog for editing
                             println("Edit clicked for: ${expenseToEdit.description}")
                         },
                         onDeleteClicked = { currentExpenseToDelete ->
@@ -113,6 +131,7 @@ fun OverviewScreen(
             }
         }
 
+        // --- Delete Confirmation Dialog ---
         if (showDeleteDialog && expenseToDeleteState != null) {
             DeleteConfirmationDialog(
                 onConfirm = {
@@ -127,6 +146,47 @@ fun OverviewScreen(
                     expenseToDeleteState = null
                 }
             )
+        }
+    }
+}
+
+@Composable
+fun TimePeriodSelector(
+    selectedPeriod: TimePeriod,
+    onPeriodSelected: (TimePeriod) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val periods = listOf(
+        TimePeriod.DAY to "D",
+        TimePeriod.WEEK to "W",
+        TimePeriod.MONTH to "M",
+        TimePeriod.ALL_TIME to "All"
+    )
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        periods.forEach { (period, label) ->
+            Button(
+                onClick = { onPeriodSelected(period) },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (selectedPeriod == period) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = if (selectedPeriod == period) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer
+                ),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp) // Adjust padding
+            ) {
+                Text(text = label, fontWeight = if (selectedPeriod == period) FontWeight.Bold else FontWeight.Normal)
+            }
+        }
+        OutlinedButton(
+            onClick = { /* TODO: Implement Custom Date Picker (e.g., show DateRangePickerDialog) */ },
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+        ) {
+            Text("Custom")
         }
     }
 }
@@ -153,10 +213,14 @@ fun ExpenseListItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Column(modifier = Modifier.weight(1f)) {
+            Column(modifier = Modifier
+                .weight(1f)
+                .padding(end = 8.dp)) {
                 Text(
                     text = expenseState.description.orEmpty(),
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = formatCurrency(expenseState.amount, expenseState.currency),
@@ -164,7 +228,7 @@ fun ExpenseListItem(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "${expenseState.categoryName ?: "Uncategorized"} - ${expenseState.paymentMethod.toReadableString()} - ${formatDate(expenseState.createdAt.time)}",
+                    text = "${expenseState.categoryName ?: "Uncategorized"} - ${expenseState.paymentMethod} - ${formatDate(expenseState.createdAt.time)}",
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis

@@ -17,7 +17,7 @@ enum class Currency(
         fun fromCode(code: String?): Currency? {
             return entries.find { it.code == code }
         }
-        val DEFAULT: Currency = CZK
+        val DEFAULT: Currency = GBP
     }
 
     override fun toString(): String {
