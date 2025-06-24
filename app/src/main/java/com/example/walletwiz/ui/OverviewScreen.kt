@@ -1,228 +1,68 @@
 package com.example.walletwiz.ui
 
-/*package com.example.walletwiz.ui
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.walletwiz.states.ExpenseState
-import com.example.walletwiz.states.OverviewState
-
-import androidx.compose.ui.Alignment
-
-@Composable
-fun OverviewScreen(state: OverviewState) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Top
-    ) {
-        // Header Section
-        Text(
-            text = "Expense Overview",
-            style = MaterialTheme.typography.displaySmall,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(bottom = 16.dp, top = 16.dp)
-        )
-
-        // Expense List Section
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // Assuming state.recentExpenses holds the list of expenses
-            items(state.recentExpenses) { expense ->
-                ExpenseItem(expense)
-            }
-        }
-    }
-}
-
-@Composable
-fun ExpenseItem(expense: ExpenseState) {
-    Card(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "Amount: \$${expense.amount}",
-                style = MaterialTheme.typography.bodyLarge
-            )
-            Text(
-                text = "Description: ${expense.description.orEmpty()}",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = "Category ID: ${expense.expenseCategoryId}",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = "Payment Method: ${expense.paymentMethod.name}",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = "Created At: ${expense.createdAt}",
-                style = MaterialTheme.typography.bodySmall
-            )
-        }
-    }
-}
-*/
-
-
-//PIE CHART
-
-
-/*
-package com.example.walletwiz.ui
-
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import com.example.walletwiz.states.OverviewState
-import com.example.walletwiz.ui.components.PieChart
-import com.example.walletwiz.ui.components.PieChartSlice
-import com.example.walletwiz.ui.components.toComposeColor // <--- IMPORT THIS
-import java.text.SimpleDateFormat
-import java.util.Locale
-
-@Composable
-fun OverviewScreen(state: OverviewState) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Total Expenses Section
-        Text(
-            text = "Total Expenses: $%.2f".format(state.totalExpenses),
-            style = MaterialTheme.typography.headlineLarge,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // --- NEW: Pie Chart for Categories ---
-        // Prepare data for the PieChart
-        val pieChartSlices = if (state.totalExpenses > 0) {
-            state.expensesByCategory.map { (category, amount) ->
-                val percentage = (amount / state.totalExpenses * 100).toFloat()
-                PieChartSlice(
-                    categoryName = category.name,
-                    amount = amount,
-                    percentage = percentage,
-                    color = category.color?.toComposeColor() ?: MaterialTheme.colorScheme.primary // Fallback color
-                )
-            }.sortedByDescending { it.amount } // Optional: sort slices by amount for consistent drawing/legend
-        } else {
-            emptyList()
-        }
-
-        PieChart(slices = pieChartSlices, modifier = Modifier.fillMaxWidth().height(300.dp)) // Adjust height as needed
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Recent Expenses List
-        Text(
-            text = "Recent Expenses",
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        if (state.recentExpenses.isEmpty()) {
-            Text("No recent expenses yet. Add some!")
-        } else {
-            LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                items(state.recentExpenses) { expense ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        elevation = CardDefaults.cardElevation(2.dp)
-                    ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
-                            Text(
-                                text = expense.description.orEmpty(),
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "$%.2f".format(expense.amount),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                // Note: ExpenseState only has expenseCategoryId, not the full ExpenseCategory object
-                                // You might need to adjust your OverviewState or ExpenseState to hold category name if needed here
-                                // For now, we'll just show the payment method and date
-                                Text(
-                                    text = "${expense.paymentMethod} - ${SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(expense.createdAt)}",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}*/
-
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import com.example.walletwiz.states.OverviewState
 import com.example.walletwiz.ui.components.PieChart
 import com.example.walletwiz.ui.components.PieChartSlice
 import com.example.walletwiz.ui.components.toComposeColor
+import com.example.walletwiz.viewmodels.ExpenseOverviewViewModel
 import java.text.SimpleDateFormat
+import com.example.walletwiz.utils.Currency
+import com.example.walletwiz.utils.formatCurrency
+import java.util.Date
 import java.util.Locale
 
 @Composable
-fun OverviewScreen(state: OverviewState) {
+fun OverviewScreen(
+    state: OverviewState,
+    overviewViewModel: ExpenseOverviewViewModel,
+    modifier: Modifier = Modifier
+) {
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var expenseToDeleteState: ExpenseState? by remember { mutableStateOf(null) }
+
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Total Expenses Section
-        Text(
-            text = "Total Expenses: $%.2f".format(Locale.getDefault(), state.totalExpenses),
-            style = MaterialTheme.typography.headlineLarge,
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(bottom = 16.dp)
-        )
+        ) {
+            Text(
+                text = "Total Expenses:", // Label
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+
+            val displayCurrencyForTotal = state.allExpenses.firstOrNull()?.currency ?: Currency.DEFAULT
+            Text(
+                text = formatCurrency(state.totalExpenses, displayCurrencyForTotal),
+                style = MaterialTheme.typography.headlineLarge,
+                textAlign = TextAlign.Center,
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // --- Pie Chart for Categories ---
         val pieChartSlices = if (state.totalExpenses > 0) {
             state.expensesByCategory.map { (category, amount) ->
                 val percentage = (amount / state.totalExpenses * 100).toFloat()
@@ -230,62 +70,162 @@ fun OverviewScreen(state: OverviewState) {
                     categoryName = category.name,
                     amount = amount,
                     percentage = percentage,
-                    color = category.color?.toComposeColor() ?: MaterialTheme.colorScheme.primary // Fallback color
+                    color = category.color.toComposeColor()
                 )
             }.sortedByDescending { it.amount }
         } else {
             emptyList()
         }
 
-        PieChart(slices = pieChartSlices, modifier = Modifier.fillMaxWidth().height(300.dp))
+        PieChart(slices = pieChartSlices, modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp))
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // All Expenses List Section
-        // --- MODIFIED TITLE AND LIST SOURCE ---
         Text(
-            text = "All Expenses", // Changed from "Recent Expenses"
+            text = "All Expenses",
             style = MaterialTheme.typography.headlineSmall,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        // Check against allExpenses now
         if (state.allExpenses.isEmpty()) {
             Text("No expenses recorded yet. Add some!")
         } else {
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                // Iterate over allExpenses
-                items(state.allExpenses) { expense ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        elevation = CardDefaults.cardElevation(2.dp)
-                    ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
-                            Text(
-                                text = expense.description.orEmpty(),
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "$%.2f".format(Locale.getDefault(), expense.amount),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = "${expense.paymentMethod} - ${SimpleDateFormat("MMM dd,yyyy", Locale.getDefault()).format(expense.createdAt)}",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
-                        }
+                items(
+                    items = state.allExpenses,
+                    key = { expense ->
+                        expense.id ?: System.identityHashCode(expense)
                     }
+                ) { expense ->
+                    ExpenseListItem(
+                        expenseState = expense,
+                        onEditClicked = { expenseToEdit ->
+                            println("Edit clicked for: ${expenseToEdit.description}")
+                        },
+                        onDeleteClicked = { currentExpenseToDelete ->
+                            expenseToDeleteState = currentExpenseToDelete
+                            showDeleteDialog = true
+                        }
+                    )
+                }
+            }
+        }
+
+        if (showDeleteDialog && expenseToDeleteState != null) {
+            DeleteConfirmationDialog(
+                onConfirm = {
+                    expenseToDeleteState?.let { expense ->
+                        overviewViewModel.deleteExpense(expense)
+                    }
+                    showDeleteDialog = false
+                    expenseToDeleteState = null
+                },
+                onDismiss = {
+                    showDeleteDialog = false
+                    expenseToDeleteState = null
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun ExpenseListItem(
+    expenseState: ExpenseState,
+    onEditClicked: (ExpenseState) -> Unit,
+    onDeleteClicked: (ExpenseState) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var showMenu by remember { mutableStateOf(false) }
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(12.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = expenseState.description.orEmpty(),
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = formatCurrency(expenseState.amount, expenseState.currency),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "${expenseState.categoryName ?: "Uncategorized"} - ${expenseState.paymentMethod.toReadableString()} - ${formatDate(expenseState.createdAt.time)}",
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            Box {
+                IconButton(onClick = { showMenu = true }) {
+                    Icon(
+                        imageVector = Icons.Filled.MoreVert,
+                        contentDescription = "More options for ${expenseState.description.orEmpty()}"
+                    )
+                }
+                DropdownMenu(
+                    expanded = showMenu,
+                    onDismissRequest = { showMenu = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Edit") },
+                        onClick = {
+                            onEditClicked(expenseState)
+                            showMenu = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Delete") },
+                        onClick = {
+                            onDeleteClicked(expenseState)
+                            showMenu = false
+                        }
+                    )
                 }
             }
         }
     }
+}
+
+@Composable
+private fun DeleteConfirmationDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Confirm Deletion") },
+        text = { Text("Are you sure you want to delete this expense? This action cannot be undone.") },
+        confirmButton = {
+            Button(onClick = onConfirm) {
+                Text("Delete")
+            }
+        },
+        dismissButton = {
+            OutlinedButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+fun formatDate(timestamp: Long): String {
+    if (timestamp == 0L) return "N/A"
+    val sdf = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+    return sdf.format(Date(timestamp))
 }

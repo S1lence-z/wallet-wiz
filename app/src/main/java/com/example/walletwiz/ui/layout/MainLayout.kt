@@ -86,7 +86,8 @@ fun ContentScreen(
     ) {
     when (selectedIndex) {
         0 -> OverviewScreen(
-            state = overviewViewModel.state.collectAsState().value
+            state = overviewViewModel.state.collectAsState().value,
+            overviewViewModel = overviewViewModel
         )
         1 -> ExpenseScreen(
             state = expenseViewModel.state.collectAsState().value,

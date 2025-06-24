@@ -1,102 +1,96 @@
 package com.example.walletwiz.viewmodels
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.walletwiz.data.dao.ExpenseCategoryDao
 import com.example.walletwiz.data.dao.ExpenseDao
 import com.example.walletwiz.data.entity.Expense
-import com.example.walletwiz.data.entity.ExpenseCategory
 import com.example.walletwiz.states.ExpenseState
 import com.example.walletwiz.states.OverviewState
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import android.util.Log
-import kotlin.collections.associateBy
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class ExpenseOverviewViewModel(
     private val expenseDao: ExpenseDao,
-    private val expenseCategoryDao: ExpenseCategoryDao
+    expenseCategoryDao: ExpenseCategoryDao
 ) : ViewModel() {
 
-    private val LOG_TAG = "ExpenseOverviewViewModel"
+    val state: StateFlow<OverviewState> = combine(
+        expenseDao.getAllExpenses(),
+        expenseCategoryDao.getAllExpenseCategories()
+    ) { expensesList, categoriesList ->
 
-    private val _state = MutableStateFlow(OverviewState())
-    val state: StateFlow<OverviewState> = _state
+        val categoryIdToNameMap = categoriesList
+            .filter { it.id != null }
+            .associate { it.id!! to it.name }
 
-    init {
-        Log.d(LOG_TAG, "ViewModel initialized. Performing initial data refresh.")
-        viewModelScope.launch {
-            refreshOverviewData()
-        }
-    }
+        val expenseStates = expensesList.map { expenseEntity ->
+            val resolvedCategoryName = expenseEntity.expenseCategoryId?.let { catId ->
+                categoryIdToNameMap[catId]
+            } ?: "Uncategorized"
 
-    suspend fun refreshOverviewData() {
-        Log.d(LOG_TAG, "Starting data refresh for overview screen.")
-        try {
-            val expenses = withContext(Dispatchers.IO) {
-                expenseDao.getAllExpenses()
-            }
-            Log.d(LOG_TAG, "Fetched ${expenses.size} expenses.")
-
-            val categories = withContext(Dispatchers.IO) {
-                expenseCategoryDao.getAllExpenseCategories()
-            }
-
-            val expenseStates = expenses.map { expense: Expense ->
-                ExpenseState(
-                   // id = expense.id,
-                    amount = expense.amount,
-                    expenseCategoryId = expense.expenseCategoryId ?: 0,
-                    paymentMethod = expense.paymentMethod,
-                    description = expense.description,
-                    createdAt = expense.createdAt,
-                   // tags = expense.tags
-                )
-            }
-
-            val categoriesMap = categories.associateBy { category: ExpenseCategory -> category.id!! }
-
-            val total = expenseStates.sumOf { it.amount }
-
-            val expensesByCategory = expenseStates
-                .groupBy { it.expenseCategoryId }
-                .mapNotNull { (categoryId, expenseList) ->
-                    categoriesMap[categoryId]?.let { category ->
-                        category to expenseList.sumOf { it.amount }
-                    }
-                }
-                .toMap()
-
-            val allSortedExpenses = expenseStates.sortedByDescending { it.createdAt }
-            val recentExpensesLimited = allSortedExpenses.take(5)
-
-            _state.value = OverviewState(
-                totalExpenses = total,
-                expensesByCategory = expensesByCategory,
-                recentExpenses = recentExpensesLimited,
-                allExpenses = allSortedExpenses
+            ExpenseState(
+                id = expenseEntity.id,
+                amount = expenseEntity.amount,
+                expenseCategoryId = expenseEntity.expenseCategoryId ?: 0,
+                categoryName = resolvedCategoryName,
+                paymentMethod = expenseEntity.paymentMethod,
+                description = expenseEntity.description,
+                createdAt = expenseEntity.createdAt,
             )
-            Log.d(LOG_TAG, "Overview data refreshed successfully. Total expenses: $total")
-
-        } catch (e: Exception) {
-            Log.e(LOG_TAG, "Error during data refresh: ${e.message}", e)
         }
-    }
 
-    class Factory(
-        private val expenseDao: ExpenseDao,
-        private val expenseCategoryDao: ExpenseCategoryDao
-    ) : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(ExpenseOverviewViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return ExpenseOverviewViewModel(expenseDao, expenseCategoryDao) as T
+        val categoriesMapForPieChart = categoriesList
+            .filter { it.id != null }
+            .associateBy { it.id!! }
+
+        val total = expenseStates.sumOf { it.amount }
+
+        val expensesByCategory = expenseStates
+            .groupBy { it.expenseCategoryId }
+            .mapNotNull { (categoryId, currentExpenseList) ->
+                categoriesMapForPieChart[categoryId]?.let { category ->
+                    category to currentExpenseList.sumOf { it.amount }
+                }
             }
-            throw IllegalArgumentException("Unknown ViewModel class")
+            .toMap()
+
+        val allSortedExpenses = expenseStates.sortedByDescending { it.createdAt }
+
+        OverviewState(
+            totalExpenses = total,
+            expensesByCategory = expensesByCategory,
+            recentExpenses = allSortedExpenses.take(5),
+            allExpenses = allSortedExpenses
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = OverviewState()
+    )
+
+    fun deleteExpense(expenseStateToDelete: ExpenseState) {
+        viewModelScope.launch {
+            if (expenseStateToDelete.id?.toLong() == 0L || expenseStateToDelete.id == 0) {
+                return@launch
+            }
+
+            val expenseEntityToDelete = Expense(
+                id = expenseStateToDelete.id,
+                amount = expenseStateToDelete.amount,
+                expenseCategoryId = expenseStateToDelete.expenseCategoryId,
+                paymentMethod = expenseStateToDelete.paymentMethod,
+                description = expenseStateToDelete.description,
+                createdAt = expenseStateToDelete.createdAt
+            )
+
+            try {
+                expenseDao.deleteExpense(expenseEntityToDelete)
+            } catch (_: Exception) {
+            }
         }
     }
 }
