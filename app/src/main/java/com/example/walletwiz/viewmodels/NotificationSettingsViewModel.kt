@@ -46,6 +46,16 @@ class NotificationSettingsViewModel(
                     _state.value = _state.value.copy(dailyReminderTime = event.time)
                     notificationSettingsRepository.setReminderTime(event.time)
                 }
+                is NotificationSettingsEvent.SetSummaryNotificationEnabled -> {
+                    _state.value = _state.value.copy(summaryNotificationEnabled = event.enabled)
+                    notificationSettingsRepository.setSummaryNotificationsEnabled(event.enabled)
+                }
+                is NotificationSettingsEvent.SetSummaryNotificationFrequency -> {
+                    _state.value = _state.value.copy(
+                        summaryNotificationFrequency = event.frequency
+                    )
+                    notificationSettingsRepository.setSummaryNotificationFrequency(event.frequency)
+                }
             }
         }
     }
@@ -72,12 +82,17 @@ class NotificationSettingsViewModel(
             combine(
                 notificationSettingsRepository.notificationsEnabledFlow,
                 notificationSettingsRepository.dailyRemindersEnabledFlow,
-                notificationSettingsRepository.reminderTimeFlow
-            ) { newNotificationsEnabled, newDailyRemindersEnabled, newReminderTime ->
+                notificationSettingsRepository.reminderTimeFlow,
+                notificationSettingsRepository.summaryNotificationsEnabledFlow,
+                notificationSettingsRepository.summaryNotificationFrequencyFlow
+            ) { newNotificationsEnabled, newDailyRemindersEnabled, newReminderTime, newSummaryNotificationsEnabled, newSummaryNotificationsFrequency ->
                 _state.value = NotificationSettingsState(
                     notificationsEnabled = newNotificationsEnabled,
                     dailyRemindersEnabled = newDailyRemindersEnabled,
-                    dailyReminderTime = newReminderTime
+                    dailyReminderTime = newReminderTime,
+                    summaryNotificationEnabled = newSummaryNotificationsEnabled,
+                    summaryNotificationFrequency = newSummaryNotificationsFrequency
+
                 )
                 if (newDailyRemindersEnabled) {
                     scheduleDailyReminder()

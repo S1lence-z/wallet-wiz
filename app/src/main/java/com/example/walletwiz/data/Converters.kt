@@ -3,6 +3,7 @@ package com.example.walletwiz.data
 import androidx.room.TypeConverter
 import java.util.Date
 import com.example.walletwiz.data.entity.PaymentMethod
+import com.example.walletwiz.utils.Frequency
 
 class Converters {
     @TypeConverter
@@ -23,5 +24,10 @@ class Converters {
     @TypeConverter
     fun paymentMethodToString(paymentMethod: PaymentMethod?): String {
         return paymentMethod?.name.toString()
+    }
+
+    @TypeConverter
+    fun frequencyToString(frequency: Frequency?): String {
+        return frequency?.name.toString()
     }
 }

@@ -19,11 +19,15 @@ import androidx.compose.ui.unit.dp
 import com.example.walletwiz.events.NotificationSettingsEvent
 import com.example.walletwiz.states.NotificationSettingsState
 import android.Manifest
+import android.app.TimePickerDialog
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.HorizontalDivider
 import androidx.core.content.ContextCompat
+import com.example.walletwiz.ui.components.FrequencyDropdown
+import com.example.walletwiz.ui.components.TimePickerComponent
 
 @Composable
 fun NotificationSettingsScreen(
@@ -79,6 +83,7 @@ fun NotificationSettingsScreen(
                         },
                     )
                 }
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                 if (state.notificationsEnabled) {
                     // Daily reminder settings
@@ -95,10 +100,40 @@ fun NotificationSettingsScreen(
                             },
                         )
                     }
-                    // TODO: TimePickerDialog to set the reminder time
-                    Text(text = "Daily Reminder Time: ${state.dailyReminderTime}")
+                    if (state.dailyRemindersEnabled) {
+                        TimePickerComponent(
+                            selectedTime = state.dailyReminderTime,
+                            onTimeSelected = { time ->
+                                onEvent(NotificationSettingsEvent.SetDailyReminderTime(time))
+                            }
+                        )
+                    }
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-                    // TODO: add switch for weekly/monthly summaries
+                    // Summary notification settings
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(text = "Enable Summary Notifications")
+                        Switch(
+                            checked = state.summaryNotificationEnabled,
+                            onCheckedChange = { isChecked ->
+                                onEvent(NotificationSettingsEvent.SetSummaryNotificationEnabled(isChecked))
+                            },
+                        )
+                    }
+                    if (state.summaryNotificationEnabled) {
+                        Text(text = "Summary Notification Frequency")
+                        Spacer(modifier = Modifier.height(8.dp))
+                        FrequencyDropdown(
+                            selectedFrequency = state.summaryNotificationFrequency,
+                            onFrequencySelected = { frequency ->
+                                onEvent(NotificationSettingsEvent.SetSummaryNotificationFrequency(frequency))
+                            }
+                        )
+                    }
                 }
             }
         }
