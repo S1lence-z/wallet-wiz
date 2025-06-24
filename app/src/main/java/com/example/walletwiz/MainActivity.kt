@@ -4,15 +4,21 @@ import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.example.walletwiz.data.database.AppDatabase
+import com.example.walletwiz.data.NotificationSettingsRepository
 import androidx.activity.compose.setContent
 import com.example.walletwiz.viewmodels.ExpenseViewModel
 import com.example.walletwiz.ui.layout.*
 import com.example.walletwiz.viewmodels.ExpenseCategoryViewModel
+import com.example.walletwiz.viewmodels.NotificationSettingsViewModel
 import com.example.walletwiz.viewmodels.ExpenseOverviewViewModel
 
 class MainActivity : AppCompatActivity() {
     private val db by lazy {
         AppDatabase.invoke(this)
+    }
+
+    private val notificationSettingsRepository by lazy {
+        NotificationSettingsRepository(this)
     }
 
     private val expenseViewModel by lazy {
@@ -36,6 +42,13 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    private val notificationSettingsViewModel by lazy {
+        NotificationSettingsViewModel(
+            notificationSettingsRepository = notificationSettingsRepository,
+            workManager = androidx.work.WorkManager.getInstance(this)
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -43,7 +56,8 @@ class MainActivity : AppCompatActivity() {
             MainLayout(
                 expenseViewModel = expenseViewModel,
                 overviewViewModel = overviewViewModel,
-                expenseCategoryViewModel = expenseCategoryViewModel
+                expenseCategoryViewModel = expenseCategoryViewModel,
+                notificationSettingsViewModel = notificationSettingsViewModel
             )
         }
     }

@@ -136,15 +136,18 @@ class ExpenseViewModel(
     private fun addTagToExpense(expenseId: Int, tagName: String) {
         viewModelScope.launch(Dispatchers.IO) {
             if (expenseId == 0) {
-                val tag = tagDao.getTagByName(tagName)
+                var tag = tagDao.getTagByName(tagName)
 
-                if (tag != null) {
-                    _state.update {
-                        if (it.selectedTags.any { t -> t.id == tag.id }) {
-                            it
-                        } else {
-                            it.copy(selectedTags = it.selectedTags + tag)
-                        }
+                if (tag == null) {
+                    val newTagId = tagDao.insertTag(ExpenseTag(name = tagName))
+                    tag = ExpenseTag(id = newTagId.toInt(), name = tagName)
+                }
+
+                _state.update {
+                    if (it.selectedTags.any { t -> t.id == tag.id }) {
+                        it
+                    } else {
+                        it.copy(selectedTags = it.selectedTags + tag)
                     }
                 }
             } else {
