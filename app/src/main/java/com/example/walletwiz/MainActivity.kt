@@ -44,7 +44,8 @@ class MainActivity : AppCompatActivity() {
 
     private val notificationSettingsViewModel by lazy {
         NotificationSettingsViewModel(
-            notificationSettingsRepository = notificationSettingsRepository
+            notificationSettingsRepository = notificationSettingsRepository,
+            workManager = androidx.work.WorkManager.getInstance(this)
         )
     }
 

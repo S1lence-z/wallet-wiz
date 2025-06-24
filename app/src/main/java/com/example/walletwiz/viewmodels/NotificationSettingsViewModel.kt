@@ -5,13 +5,19 @@ import androidx.lifecycle.viewModelScope
 import com.example.walletwiz.data.NotificationSettingsRepository
 import com.example.walletwiz.states.NotificationSettingsState
 import com.example.walletwiz.events.NotificationSettingsEvent
+import com.example.walletwiz.workers.NotificationReminderWorker
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.collect
+import java.util.concurrent.TimeUnit
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.WorkManager
+import androidx.work.PeriodicWorkRequestBuilder
 
 class NotificationSettingsViewModel(
     private val notificationSettingsRepository: NotificationSettingsRepository,
+    private val workManager: WorkManager
 ) : ViewModel() {
     private val _state = MutableStateFlow(NotificationSettingsState())
     val state get() = _state
@@ -30,6 +36,11 @@ class NotificationSettingsViewModel(
                 is NotificationSettingsEvent.SetDailyReminderEnabled -> {
                     _state.value = _state.value.copy(dailyRemindersEnabled = event.enabled)
                     notificationSettingsRepository.setDailyRemindersEnabled(event.enabled)
+                    if (event.enabled) {
+                        scheduleDailyReminder()
+                    } else {
+                        cancelDailyReminder()
+                    }
                 }
                 is NotificationSettingsEvent.SetDailyReminderTime -> {
                     _state.value = _state.value.copy(dailyReminderTime = event.time)
@@ -37,6 +48,23 @@ class NotificationSettingsViewModel(
                 }
             }
         }
+    }
+
+    // TODO: extract the notification functions to a separate utility class if needed
+    private fun scheduleDailyReminder() {
+        val workRequest = PeriodicWorkRequestBuilder<NotificationReminderWorker>(
+            24, TimeUnit.HOURS
+        ).build()
+
+        workManager.enqueueUniquePeriodicWork(
+            "daily_reminder",
+            ExistingPeriodicWorkPolicy.UPDATE,
+            workRequest
+        )
+    }
+
+    private fun cancelDailyReminder() {
+        workManager.cancelUniqueWork("daily_reminder")
     }
 
     private fun loadNotificationSettings() {
@@ -51,6 +79,9 @@ class NotificationSettingsViewModel(
                     dailyRemindersEnabled = newDailyRemindersEnabled,
                     dailyReminderTime = newReminderTime
                 )
+                if (newDailyRemindersEnabled) {
+                    scheduleDailyReminder()
+                }
             }.collect()
         }
     }

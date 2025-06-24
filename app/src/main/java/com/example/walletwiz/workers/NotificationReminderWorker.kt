@@ -7,9 +7,6 @@ import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.walletwiz.R
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import java.util.concurrent.TimeUnit
 
 class NotificationReminderWorker(
     private val context: Context,
@@ -18,15 +15,7 @@ class NotificationReminderWorker(
 
     override suspend fun doWork(): Result {
         sendNotification()
-        planNextReminder()
         return Result.success()
-    }
-
-    private fun planNextReminder() {
-         val workRequest = OneTimeWorkRequestBuilder<NotificationReminderWorker>()
-             .setInitialDelay(1, TimeUnit.DAYS)
-             .build()
-         WorkManager.getInstance(context).enqueue(workRequest)
     }
 
     private fun sendNotification() {
@@ -41,7 +30,7 @@ class NotificationReminderWorker(
         notificationManager.createNotificationChannel(channel)
 
         val notification = NotificationCompat.Builder(context, channelId)
-            .setContentTitle("WalletWiz Reminder")
+            .setContentTitle("WalletWiz Daily Reminder")
             .setContentText("Did you forget to input your expenses today?")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .build()
