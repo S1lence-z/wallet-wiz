@@ -14,6 +14,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,7 +39,8 @@ fun ExpenseCategoryScreen(state: ExpenseCategoryState, onEvent: (ExpenseCategory
             style = MaterialTheme.typography.displaySmall,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
-                .padding(top = 16.dp)
+                .padding(top = 16.dp),
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         // Row for Add Category Button
@@ -80,7 +82,8 @@ fun ExpenseCategoryScreen(state: ExpenseCategoryState, onEvent: (ExpenseCategory
                     Text(
                         text = "${category.name} - ${category.description ?: "No description"}",
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(8.dp)
+                        modifier = Modifier.padding(8.dp),
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -95,17 +98,35 @@ fun ExpenseCategoryScreen(state: ExpenseCategoryState, onEvent: (ExpenseCategory
                         TextField(
                             value = state.selectedCategory?.name ?: "",
                             onValueChange = { onEvent(ExpenseCategoryEvent.SetName(it)) },
-                            label = { Text("Name") }
+                            label = { Text("Name") },
+                            colors = TextFieldDefaults.colors(
+                                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface
+                            )
                         )
                         TextField(
                             value = state.selectedCategory?.description ?: "",
                             onValueChange = { onEvent(ExpenseCategoryEvent.SetDescription(it)) },
-                            label = { Text("Description") }
+                            label = { Text("Description") },
+                            colors = TextFieldDefaults.colors(
+                                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface
+                            )
                         )
                         TextField(
                             value = state.selectedCategory?.color ?: "",
                             onValueChange = { onEvent(ExpenseCategoryEvent.SetColor(it)) },
-                            label = { Text("Color (e.g. #FF0000)") }
+                            label = { Text("Color (e.g. #FF0000)") },
+                            colors = TextFieldDefaults.colors(
+                                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface
+                            )
                         )
                     }
                 },
@@ -123,7 +144,10 @@ fun ExpenseCategoryScreen(state: ExpenseCategoryState, onEvent: (ExpenseCategory
                             Text("Delete")
                         }
                     }
-                }
+                },
+                containerColor = MaterialTheme.colorScheme.surface,
+                titleContentColor = MaterialTheme.colorScheme.onSurface,
+                textContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
         }
     }

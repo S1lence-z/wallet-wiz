@@ -31,7 +31,8 @@ fun ExpenseScreen(
             style = MaterialTheme.typography.displaySmall,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
-                .padding(bottom = 16.dp, top = 16.dp)
+                .padding(bottom = 16.dp, top = 16.dp),
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         Column(

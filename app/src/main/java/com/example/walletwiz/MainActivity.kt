@@ -8,6 +8,7 @@ import com.example.walletwiz.data.NotificationSettingsRepository
 import androidx.activity.compose.setContent
 import com.example.walletwiz.viewmodels.ExpenseViewModel
 import com.example.walletwiz.ui.layout.*
+import com.example.walletwiz.ui.theme.WalletWizTheme
 import com.example.walletwiz.viewmodels.ExpenseCategoryViewModel
 import com.example.walletwiz.viewmodels.NotificationSettingsViewModel
 import com.example.walletwiz.viewmodels.ExpenseOverviewViewModel
@@ -53,12 +54,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MainLayout(
-                expenseViewModel = expenseViewModel,
-                overviewViewModel = overviewViewModel,
-                expenseCategoryViewModel = expenseCategoryViewModel,
-                notificationSettingsViewModel = notificationSettingsViewModel
-            )
+            WalletWizTheme {
+                MainLayout(
+                    expenseViewModel = expenseViewModel,
+                    overviewViewModel = overviewViewModel,
+                    expenseCategoryViewModel = expenseCategoryViewModel,
+                    notificationSettingsViewModel = notificationSettingsViewModel
+                )
+            }
         }
     }
 }

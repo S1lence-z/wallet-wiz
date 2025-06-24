@@ -45,7 +45,7 @@ fun NotificationSettingsScreen(
     )
     // UI components for notification settings
     Column(modifier = Modifier.padding(16.dp)) {
-        Text(text = "Notification Settings", style = MaterialTheme.typography.headlineMedium)
+        Text(text = "Notification Settings", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onBackground)
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -57,7 +57,7 @@ fun NotificationSettingsScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = "Enable Notifications")
+                    Text(text = "Enable Notifications", color = MaterialTheme.colorScheme.onSurface)
                     Switch(
                         checked = state.notificationsEnabled,
                         onCheckedChange = { isChecked ->
@@ -92,7 +92,7 @@ fun NotificationSettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(text = "Enable Daily Reminders")
+                        Text(text = "Enable Daily Reminders", color = MaterialTheme.colorScheme.onSurface)
                         Switch(
                             checked = state.dailyRemindersEnabled,
                             onCheckedChange = { isChecked ->
@@ -116,7 +116,7 @@ fun NotificationSettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(text = "Enable Summary Notifications")
+                        Text(text = "Enable Summary Notifications", color = MaterialTheme.colorScheme.onSurface)
                         Switch(
                             checked = state.summaryNotificationEnabled,
                             onCheckedChange = { isChecked ->
@@ -125,7 +125,7 @@ fun NotificationSettingsScreen(
                         )
                     }
                     if (state.summaryNotificationEnabled) {
-                        Text(text = "Summary Notification Frequency")
+                        Text(text = "Summary Notification Frequency", color = MaterialTheme.colorScheme.onSurface)
                         Spacer(modifier = Modifier.height(8.dp))
                         FrequencyDropdown(
                             selectedFrequency = state.summaryNotificationFrequency,

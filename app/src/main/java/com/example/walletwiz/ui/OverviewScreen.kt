@@ -51,7 +51,8 @@ fun OverviewScreen(
             Text(
                 text = "Total Expenses:",
                 style = MaterialTheme.typography.headlineSmall,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(modifier = Modifier.height(4.dp))
 
@@ -60,6 +61,7 @@ fun OverviewScreen(
                 text = formatCurrency(state.totalExpenses, displayCurrencyForTotal),
                 style = MaterialTheme.typography.headlineLarge,
                 textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
 
@@ -90,8 +92,8 @@ fun OverviewScreen(
 
         TimePeriodSelector(
             selectedPeriod = state.selectedTimePeriod,
-            onPeriodSelected = { period ->
-                overviewViewModel.setTimePeriod(period)
+            onPeriodSelected = {
+                overviewViewModel.setTimePeriod(it)
             }
         )
 
@@ -99,7 +101,7 @@ fun OverviewScreen(
 
 
         if (state.allExpenses.isEmpty()) {
-            Text("No expenses recorded for this period.")
+            Text("No expenses recorded for this period.", color = MaterialTheme.colorScheme.onBackground)
         } else {
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
                 items(
@@ -165,8 +167,8 @@ fun TimePeriodSelector(
             Button(
                 onClick = { onPeriodSelected(period) },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (selectedPeriod == period) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = if (selectedPeriod == period) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer
+                    containerColor = if (selectedPeriod == period) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+                    contentColor = if (selectedPeriod == period) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
                 ),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp) // Adjust padding
             ) {
@@ -195,7 +197,8 @@ fun ExpenseListItem(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Row(
             modifier = Modifier
@@ -211,18 +214,21 @@ fun ExpenseListItem(
                     text = expenseState.description.orEmpty(),
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = formatCurrency(expenseState.amount, expenseState.currency),
                     style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = "${expenseState.categoryName ?: "Uncategorized"} - ${expenseState.paymentMethod.toReadableString()} - ${formatDate(expenseState.createdAt.time)}",
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
             }
 
@@ -230,7 +236,8 @@ fun ExpenseListItem(
                 IconButton(onClick = { showMenu = true }) {
                     Icon(
                         imageVector = Icons.Filled.MoreVert,
-                        contentDescription = "More options for ${expenseState.description.orEmpty()}"
+                        contentDescription = "More options for ${expenseState.description.orEmpty()}",
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
                 DropdownMenu(
@@ -275,7 +282,10 @@ private fun DeleteConfirmationDialog(
             OutlinedButton(onClick = onDismiss) {
                 Text("Cancel")
             }
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
+        textContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
     )
 }
 
