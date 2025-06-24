@@ -22,5 +22,5 @@ data class Expense(
     @ColumnInfo(name = "created_at")
     val createdAt: Date,
     @ColumnInfo(name = "tags")
-    val tags: String = ""  // ✅ Store tag IDs as "1,2,3"
+    val tags: String = "",
 )
