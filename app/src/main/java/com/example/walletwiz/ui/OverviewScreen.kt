@@ -105,7 +105,6 @@ fun OverviewScreen(
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        // --- Expenses List ---
         if (state.allExpenses.isEmpty()) {
             Text("No expenses recorded for this period.")
         } else {
@@ -131,7 +130,6 @@ fun OverviewScreen(
             }
         }
 
-        // --- Delete Confirmation Dialog ---
         if (showDeleteDialog && expenseToDeleteState != null) {
             DeleteConfirmationDialog(
                 onConfirm = {

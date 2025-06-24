@@ -12,7 +12,7 @@ import com.example.walletwiz.viewmodels.ExpenseOverviewViewModel
 
 class MainActivity : AppCompatActivity() {
     private val db by lazy {
-        AppDatabase.invoke(this)  // Use singleton instance
+        AppDatabase.invoke(this)
     }
 
     private val expenseViewModel by lazy {

@@ -1,7 +1,6 @@
 package com.example.walletwiz.data.entity
 
 import androidx.room.*
-import com.example.walletwiz.utils.Currency
 import java.util.Date
 
 @Entity(
