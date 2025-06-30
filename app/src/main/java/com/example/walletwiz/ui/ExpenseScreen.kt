@@ -69,6 +69,7 @@ fun ExpenseScreen(
             )
 
             DateSelector(
+                initialDate = state.createdAt,
                 onDateSelected = { onEvent(ExpenseEvent.SetCreatedAt(it)) }
             )
 

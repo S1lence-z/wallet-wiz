@@ -44,7 +44,7 @@ class ExpenseOverviewViewModel(
 
         val categoryIdToNameMap = categoriesList
             .filter { it.id != null }
-            .associate { it.id!! to it.name }
+            .associate { it.id to it.name }
 
         val categoryDetailsMap = categoriesList.associateBy { it.id }
 
@@ -66,7 +66,7 @@ class ExpenseOverviewViewModel(
 
         val categoriesMapForPieChart = categoriesList
             .filter { it.id != null }
-            .associateBy { it.id!! }
+            .associateBy { it.id ?: 0 }
 
         val total = expenseStates.sumOf { it.amount }
 
@@ -149,7 +149,7 @@ class ExpenseOverviewViewModel(
 
     fun deleteExpense(expenseStateToDelete: ExpenseState) {
         viewModelScope.launch {
-            if (expenseStateToDelete.id?.toLong() == 0L || expenseStateToDelete.id == 0) {
+            if (expenseStateToDelete.id == null) {
                 return@launch
             }
 

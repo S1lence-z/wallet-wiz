@@ -108,17 +108,19 @@ class ExpenseViewModel(
     private fun saveExpense() {
         val state = _state.value
         if (state.amount > 0 && state.expenseCategoryId != 0) {
-            val expense = Expense(
-                id = state.id ?: 0,
-                amount = state.amount,
-                expenseCategoryId = state.expenseCategoryId,
-                createdAt = state.createdAt,
-                description = state.description,
-                paymentMethod = state.paymentMethod
-            )
             viewModelScope.launch(Dispatchers.IO) {
-                if (expense.id == 0) {
-                    val expenseId = expenseDao.insertExpense(expense).toInt()
+                if (state.id == null) {
+                    // Create a new expense
+                    val newExpense = Expense(
+                        id = null,
+                        amount = state.amount,
+                        expenseCategoryId = state.expenseCategoryId,
+                        createdAt = state.createdAt,
+                        description = state.description,
+                        paymentMethod = state.paymentMethod
+                    )
+                    val expenseId = expenseDao.insertExpense(newExpense).toInt()
+                    Log.d("ExpenseViewModel", "Inserted expense with ID: $expenseId")
                     if (expenseId > 0) {
                         if (state.selectedTags.isNotEmpty()) {
                             for (tag in state.selectedTags) {
@@ -130,11 +132,20 @@ class ExpenseViewModel(
                         Log.e("ExpenseViewModel", "Failed to insert expense")
                     }
                 } else {
-                    expenseDao.updateExpense(expense)
-                    tagDao.deleteAllTagsForExpense(expense.id ?: 0)
+                    // Update existing expense
+                    val existingExpense = Expense(
+                        id = state.id,
+                        amount = state.amount,
+                        expenseCategoryId = state.expenseCategoryId,
+                        createdAt = state.createdAt,
+                        description = state.description,
+                        paymentMethod = state.paymentMethod
+                    )
+                    expenseDao.updateExpense(existingExpense)
+                    tagDao.deleteAllTagsForExpense(state.id)
                     if (state.selectedTags.isNotEmpty()) {
                         for (tag in state.selectedTags) {
-                            tagDao.insertExpenseTagCrossRef(ExpenseTagCrossRef(expense.id, tag.id))
+                            tagDao.insertExpenseTagCrossRef(ExpenseTagCrossRef(state.id, tag.id))
                         }
                     }
                     _isExpenseSaved.value = true
