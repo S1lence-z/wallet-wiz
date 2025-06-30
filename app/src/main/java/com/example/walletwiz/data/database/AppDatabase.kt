@@ -34,7 +34,7 @@ abstract class AppDatabase : RoomDatabase() {
                 AppDatabase::class.java,
                 "wallet.db"
             )
-                .addCallback(object : RoomDatabase.Callback() {
+                .addCallback(object : Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)
                         instance?.let { database ->
@@ -52,6 +52,7 @@ abstract class AppDatabase : RoomDatabase() {
 // ✅ Function to insert default expense categories
 suspend fun insertDefaultCategories(expenseCategoryDao: ExpenseCategoryDao) {
     val defaultCategories = listOf(
+        ExpenseCategory(name = "Uncategorized", description = "No category", color = "#FFFFE0"),
         ExpenseCategory(name = "Food", description = "Meals and groceries", color = "#FF5733"),
         ExpenseCategory(name = "Transport", description = "Public transport and fuel", color = "#4287f5"),
         ExpenseCategory(name = "Entertainment", description = "Movies, music, games", color = "#f5a742"),
