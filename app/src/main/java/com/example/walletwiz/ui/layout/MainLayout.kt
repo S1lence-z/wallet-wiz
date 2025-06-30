@@ -71,7 +71,6 @@ fun MainLayout(
                     NavigationBarItem(
                         selected = selectedIndex == index,
                         onClick = {
-                            // Pokud přecházíme na Expense tab, vždy resetuj na přidávání nového výdaje
                             if (index == 1) {
                                 expenseViewModel.onEvent(ExpenseEvent.CancelExpense)
                             }

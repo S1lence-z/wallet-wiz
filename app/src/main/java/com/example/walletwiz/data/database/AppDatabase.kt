@@ -44,12 +44,11 @@ abstract class AppDatabase : RoomDatabase() {
                         }
                     }
                 })
-                .fallbackToDestructiveMigration()  // ✅ Deletes old DB if schema changes
+                .fallbackToDestructiveMigration()
                 .build()
     }
 }
 
-// ✅ Function to insert default expense categories
 suspend fun insertDefaultCategories(expenseCategoryDao: ExpenseCategoryDao) {
     val defaultCategories = listOf(
         ExpenseCategory(name = "Uncategorized", description = "No category", color = "#FFFFE0"),

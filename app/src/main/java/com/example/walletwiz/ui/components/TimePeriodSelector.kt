@@ -44,16 +44,10 @@ fun TimePeriodSelector(
                     containerColor = if (selectedPeriod == period) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer,
                     contentColor = if (selectedPeriod == period) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer
                 ),
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp) // Adjust padding
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
             ) {
                 Text(text = label, fontWeight = if (selectedPeriod == period) FontWeight.Bold else FontWeight.Normal)
             }
-        }
-        OutlinedButton(
-            onClick = { },
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
-        ) {
-            Text("Custom")
         }
     }
 }

@@ -58,7 +58,7 @@ class NotificationSummaryWorker(
         val titleText = getNotificationTitle(frequency)
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val channelId = "walletwiz_summary"
+        val channelId = "wallet_summary"
 
         val channel = NotificationChannel(
             channelId,

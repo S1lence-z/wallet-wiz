@@ -6,11 +6,11 @@ enum class Currency(
     val symbol: String,
     val code: String,
     val displayName: String,
-    val locale: Locale // Add Locale
+    val locale: Locale
 ) {
     USD("$", "USD", "US Dollar", Locale.US),
-    CZK("Kč", "CZK", "Czech Koruna", Locale("cs", "CZ")), // Locale for Czech Republic
-    EUR("€", "EUR", "Euro", Locale.GERMANY), // Example, choose appropriate Eurozone locale
+    CZK("Kč", "CZK", "Czech Koruna", Locale("cs", "CZ")),
+    EUR("€", "EUR", "Euro", Locale.GERMANY),
     GBP("£", "GBP", "British Pound", Locale.UK);
 
     companion object {

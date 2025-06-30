@@ -46,8 +46,6 @@ class ExpenseOverviewViewModel(
             .filter { it.id != null }
             .associate { it.id to it.name }
 
-        val categoryDetailsMap = categoriesList.associateBy { it.id }
-
         val expenseStates = filteredExpensesFromDb.map { expenseEntity ->
             val resolvedCategoryName = expenseEntity.expenseCategoryId?.let { catId ->
                 categoryIdToNameMap[catId]
@@ -96,7 +94,6 @@ class ExpenseOverviewViewModel(
 
     private fun calculateDateRange(period: TimePeriod): Pair<Long, Long> {
         val calendar = Calendar.getInstance()
-        val now = calendar.timeInMillis
 
         return when (period) {
             TimePeriod.DAY -> {
@@ -123,27 +120,21 @@ class ExpenseOverviewViewModel(
                 calendar.add(Calendar.DAY_OF_YEAR, -1)
                 calendar.set(Calendar.HOUR_OF_DAY, 23)
                 calendar.set(Calendar.MINUTE, 59)
-                // ...
                 val endOfWeek = calendar.timeInMillis
                 Pair(startOfWeek, endOfWeek)
             }
             TimePeriod.MONTH -> {
                 calendar.set(Calendar.DAY_OF_MONTH, 1)
                 calendar.set(Calendar.HOUR_OF_DAY, 0)
-                // ...
                 val startOfMonth = calendar.timeInMillis
 
                 calendar.add(Calendar.MONTH, 1)
                 calendar.add(Calendar.DAY_OF_YEAR, -1)
                 calendar.set(Calendar.HOUR_OF_DAY, 23)
-                // ...
                 val endOfMonth = calendar.timeInMillis
                 Pair(startOfMonth, endOfMonth)
             }
             TimePeriod.ALL_TIME -> Pair(0L, Long.MAX_VALUE)
-            TimePeriod.CUSTOM -> {
-                Pair(0L, Long.MAX_VALUE)
-            }
         }
     }
 

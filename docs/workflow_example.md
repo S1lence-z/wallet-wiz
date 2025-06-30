@@ -28,7 +28,7 @@ data class Expense(
     @ColumnInfo(name = "category") val category: String,
     @ColumnInfo(name = "note") val note: String?,
     @ColumnInfo(name = "timestamp") val timestamp: Long,
-    @ColumnInfo(name = "payment_method") val paymentMethod: String // "cash" or "card"
+    @ColumnInfo(name = "payment_method") val paymentMethod: String
 )
 ```
 
