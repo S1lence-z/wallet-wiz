@@ -32,7 +32,6 @@ fun ExpenseCategoryScreen(state: ExpenseCategoryState, onEvent: (ExpenseCategory
             .padding(16.dp),
         verticalArrangement = Arrangement.Top
     ) {
-        // Header Section
         Text(
             text = "Expense Categories",
             style = MaterialTheme.typography.displaySmall,
@@ -41,7 +40,6 @@ fun ExpenseCategoryScreen(state: ExpenseCategoryState, onEvent: (ExpenseCategory
                 .padding(top = 16.dp)
         )
 
-        // Row for Add Category Button
         Row(
             modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp, top = 8.dp),
             horizontalArrangement = Arrangement.End
