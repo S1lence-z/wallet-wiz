@@ -22,8 +22,7 @@ fun MainLayout(
     overviewViewModel: ExpenseOverviewViewModel,
     expenseCategoryViewModel: ExpenseCategoryViewModel,
     notificationSettingsViewModel: NotificationSettingsViewModel
-
-    ) {
+) {
     val navItems = listOf(
         NavItem(
             title = "Overview",
@@ -42,7 +41,7 @@ fun MainLayout(
         ),
         NavItem(
             title = "Notifications",
-            icon = Icons.Default.Settings,
+            icon = Icons.Default.Notifications,
             route = "notifications"
         )
     )
@@ -54,15 +53,17 @@ fun MainLayout(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
-            NavigationBar {
-                navItems.forEachIndexed() { index, navItem ->
+            NavigationBar (
+                //modifier = Modifier.height(85.dp)
+            ){
+                navItems.forEachIndexed { index, navItem ->
                     NavigationBarItem(
                         selected = selectedIndex == index,
                         onClick = {
                             selectedIndex = index
                         },
                         icon = {
-                            Icon(imageVector = navItem.icon, contentDescription = null)
+                            Icon(imageVector = navItem.icon, contentDescription = navItem.title)
                         },
                         label = {
                             Text(text = navItem.title)
@@ -71,8 +72,7 @@ fun MainLayout(
                 }
             }
         }
-    ) {
-        innerPadding ->
+    ) { innerPadding ->
         ContentScreen(
             modifier = Modifier.padding(innerPadding),
             selectedIndex = selectedIndex,
@@ -92,9 +92,10 @@ fun ContentScreen(
     overviewViewModel: ExpenseOverviewViewModel,
     expenseCategoryViewModel: ExpenseCategoryViewModel,
     notificationSettingsViewModel: NotificationSettingsViewModel
-    ) {
+) {
     when (selectedIndex) {
         0 -> OverviewScreen(
+            modifier = modifier,
             state = overviewViewModel.state.collectAsState().value,
             overviewViewModel = overviewViewModel
         )

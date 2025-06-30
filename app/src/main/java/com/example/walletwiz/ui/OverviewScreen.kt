@@ -15,7 +15,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.walletwiz.utils.Currency
 import com.example.walletwiz.utils.TimePeriod
 import com.example.walletwiz.states.ExpenseState
@@ -31,9 +30,9 @@ import java.util.Locale
 
 @Composable
 fun OverviewScreen(
+    modifier: Modifier = Modifier,
     state: OverviewState,
-    overviewViewModel: ExpenseOverviewViewModel,
-    modifier: Modifier = Modifier
+    overviewViewModel: ExpenseOverviewViewModel
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
     var expenseToDeleteState: ExpenseState? by remember { mutableStateOf(null) }

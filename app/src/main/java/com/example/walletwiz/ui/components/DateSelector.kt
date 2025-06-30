@@ -9,6 +9,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.*
 import java.util.Date
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.*
 import java.time.*
 import java.time.format.DateTimeFormatter
@@ -20,50 +22,60 @@ fun DateSelector(
     onDateSelected: (Date) -> Unit
 ) {
     val now = Instant.now()
+    var selectedDate by remember { mutableStateOf(Date.from(now)) }
     val today = Date.from(now)
     val yesterday = Date.from(now.minus(1, ChronoUnit.DAYS))
-    val formatter = DateTimeFormatter.ofPattern("dd. MM. yyyy")
-    // Selected date
-    var selectedDate by remember { mutableStateOf(today) }
-    // Variables for the custom date
-    val dateState = rememberDatePickerState()
+
+    val formatter = remember {
+        DateTimeFormatter.ofPattern("dd. MM. yyyy").withZone(ZoneId.systemDefault())
+    }
+
+    val initialDisplayDateMillis = remember(selectedDate) {
+        selectedDate.toInstant().toEpochMilli()
+    }
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = initialDisplayDateMillis,
+        initialDisplayMode = DisplayMode.Picker
+    )
     var showDatePicker by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        val currentDate = Date.from(Instant.now())
+        selectedDate = currentDate
+        onDateSelected(currentDate)
+    }
 
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Header text
         Text(
-            text = "Select a date: ${selectedDate.toInstant().atZone(ZoneId.systemDefault()).format(formatter)}",
+            text = "Select a date: ${formatter.format(selectedDate.toInstant())}",
             style = MaterialTheme.typography.bodyLarge,
             fontSize = 20.sp,
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Row with date selection boxes
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Select today
             DateSelectionBox(
                 label = "Today",
                 onClick = {
                     selectedDate = today
                     onDateSelected(today)
-                }
+                },
+                modifier = Modifier.weight(1f)
             )
-            // Select yesterday
             DateSelectionBox(
                 label = "Yesterday",
                 onClick = {
                     selectedDate = yesterday
                     onDateSelected(yesterday)
-                }
+                },
+                modifier = Modifier.weight(1f)
             )
-            // Select another date
             Box(
                 modifier = Modifier
                     .clickable { showDatePicker = true }
@@ -78,17 +90,21 @@ fun DateSelector(
                     modifier = Modifier.align(Alignment.Center)
                 )
 
-                // Show the date picker dialog
                 if (showDatePicker) {
                     DatePickerDialog(
                         onDismissRequest = { showDatePicker = false },
                         confirmButton = {
-                            TextButton(onClick = {
-                                val newCustomDate = Date.from(Instant.ofEpochMilli(dateState.selectedDateMillis!!))
-                                selectedDate = newCustomDate
-                                onDateSelected(newCustomDate)
-                                showDatePicker = false
-                            }) {
+                            TextButton(
+                                onClick = {
+                                    datePickerState.selectedDateMillis?.let { millis ->
+                                        val newCustomDate = Date.from(Instant.ofEpochMilli(millis))
+                                        selectedDate = newCustomDate
+                                        onDateSelected(newCustomDate)
+                                        showDatePicker = false
+                                    }
+                                },
+                                enabled = datePickerState.selectedDateMillis != null
+                            ) {
                                 Text("OK")
                             }
                         },
@@ -96,13 +112,12 @@ fun DateSelector(
                             TextButton(onClick = { showDatePicker = false }) {
                                 Text("Cancel")
                             }
-                        },
-                        content = {
-                            DatePicker(
-                                state = dateState,
-                            )
                         }
-                    )
+                    ) {
+                        DatePicker(
+                            state = datePickerState
+                        )
+                    }
                 }
             }
         }
@@ -112,18 +127,19 @@ fun DateSelector(
 @Composable
 fun DateSelectionBox(
     label: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .clickable { onClick() }
             .background(MaterialTheme.colorScheme.primaryContainer)
-            .padding(12.dp)
+            .padding(12.dp),
+        contentAlignment = Alignment.Center
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.align(Alignment.Center),
             fontSize = 16.sp
         )
     }
