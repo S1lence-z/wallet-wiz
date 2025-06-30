@@ -32,7 +32,8 @@ import java.util.Locale
 fun OverviewScreen(
     modifier: Modifier = Modifier,
     state: OverviewState,
-    overviewViewModel: ExpenseOverviewViewModel
+    overviewViewModel: ExpenseOverviewViewModel,
+    onEditClicked: (ExpenseState) -> Unit = {}
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
     var expenseToDeleteState: ExpenseState? by remember { mutableStateOf(null) }
@@ -109,10 +110,7 @@ fun OverviewScreen(
                 ) { expense ->
                     ExpenseListItem(
                         expenseState = expense,
-                        onEditClicked = { expenseToEdit ->
-                            // TODO: Implement navigation or dialog for editing
-                            println("Edit clicked for: ${expenseToEdit.description}")
-                        },
+                        onEditClicked = onEditClicked,
                         onDeleteClicked = { currentExpenseToDelete ->
                             expenseToDeleteState = currentExpenseToDelete
                             showDeleteDialog = true
@@ -173,7 +171,7 @@ fun TimePeriodSelector(
             }
         }
         OutlinedButton(
-            onClick = { /* TODO: Implement Custom Date Picker (e.g., show DateRangePickerDialog) */ },
+            onClick = { },
             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
         ) {
             Text("Custom")

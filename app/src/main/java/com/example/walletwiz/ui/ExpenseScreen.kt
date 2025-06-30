@@ -9,16 +9,13 @@ import androidx.compose.ui.unit.dp
 import com.example.walletwiz.states.ExpenseState
 import com.example.walletwiz.events.ExpenseEvent
 import com.example.walletwiz.ui.components.*
-import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun ExpenseScreen(
     state: ExpenseState,
-    onEvent: (ExpenseEvent) -> Unit
+    onEvent: (ExpenseEvent) -> Unit,
+    onSaveClicked: () -> Unit
 ) {
-    LaunchedEffect(Unit) {
-        onEvent(ExpenseEvent.CancelExpense)
-    }
 
     Column(
         modifier = Modifier
@@ -27,7 +24,7 @@ fun ExpenseScreen(
         verticalArrangement = Arrangement.Top
     ) {
         Text(
-            text = "Add Expense",
+            text = if (state.id != null) "Edit Expense" else "Add Expense",
             style = MaterialTheme.typography.displaySmall,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
@@ -76,11 +73,14 @@ fun ExpenseScreen(
             )
 
             Button(
-                onClick = { onEvent(ExpenseEvent.SaveExpense) },
+                onClick = {
+                    onEvent(ExpenseEvent.SaveExpense)
+                    onSaveClicked()
+                          },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = state.amount > 0
             ) {
-                Text("Save Expense")
+                Text(if (state.id != null) "Update Expense" else "Save Expense")
             }
         }
     }

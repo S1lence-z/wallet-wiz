@@ -1,6 +1,7 @@
 package com.example.walletwiz.events
 
 import com.example.walletwiz.data.entity.PaymentMethod
+import com.example.walletwiz.states.ExpenseState
 import java.util.Date
 
 sealed interface ExpenseEvent {
@@ -16,4 +17,6 @@ sealed interface ExpenseEvent {
     data class AddTagToExpense(val expenseId: Int, val tagName: String) : ExpenseEvent
     data class RemoveTagFromExpense(val expenseId: Int, val tagId: Int) : ExpenseEvent
     data class LoadTagsForExpense(val expenseId: Int) : ExpenseEvent
+
+    data class SetExpenseForEdit(val expense: ExpenseState) : ExpenseEvent
 }
