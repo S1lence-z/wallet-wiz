@@ -4,7 +4,5 @@ enum class TimePeriod {
     DAY,
     WEEK,
     MONTH,
-    // YEAR, // Optional
-    ALL_TIME, // DEFAULT
-    CUSTOM /* TODO: PERIOD PICKING */
+    ALL_TIME
 }

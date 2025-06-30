@@ -13,6 +13,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
+import com.example.walletwiz.events.ExpenseEvent
+import com.example.walletwiz.states.ExpenseState
 import com.example.walletwiz.ui.*
 import com.example.walletwiz.viewmodels.*
 
@@ -50,16 +53,27 @@ fun MainLayout(
         mutableIntStateOf(0)
     }
 
+    val isExpenseSaved by expenseViewModel.isExpenseSaved.collectAsState()
+
+    LaunchedEffect(isExpenseSaved) {
+        if (isExpenseSaved) {
+            selectedIndex = 0
+            expenseViewModel.resetSavedFlag()
+        }
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
-            NavigationBar (
-                //modifier = Modifier.height(85.dp)
-            ){
+            NavigationBar ()
+            {
                 navItems.forEachIndexed { index, navItem ->
                     NavigationBarItem(
                         selected = selectedIndex == index,
                         onClick = {
+                            if (index == 1) {
+                                expenseViewModel.onEvent(ExpenseEvent.CancelExpense)
+                            }
                             selectedIndex = index
                         },
                         icon = {
@@ -79,7 +93,14 @@ fun MainLayout(
             expenseViewModel = expenseViewModel,
             overviewViewModel = overviewViewModel,
             expenseCategoryViewModel = expenseCategoryViewModel,
-            notificationSettingsViewModel = notificationSettingsViewModel
+            notificationSettingsViewModel = notificationSettingsViewModel,
+            onNavigateToExpenseEdit = { expense ->
+                expenseViewModel.onEvent(ExpenseEvent.SetExpenseForEdit(expense))
+                selectedIndex = 1
+            },
+            navigateToExpenseOverview = {
+                selectedIndex = 0
+            }
         )
     }
 }
@@ -91,17 +112,21 @@ fun ContentScreen(
     expenseViewModel: ExpenseViewModel,
     overviewViewModel: ExpenseOverviewViewModel,
     expenseCategoryViewModel: ExpenseCategoryViewModel,
-    notificationSettingsViewModel: NotificationSettingsViewModel
+    notificationSettingsViewModel: NotificationSettingsViewModel,
+    onNavigateToExpenseEdit: (ExpenseState) -> Unit,
+    navigateToExpenseOverview: () -> Unit
 ) {
     when (selectedIndex) {
         0 -> OverviewScreen(
             modifier = modifier,
             state = overviewViewModel.state.collectAsState().value,
-            overviewViewModel = overviewViewModel
+            overviewViewModel = overviewViewModel,
+            onEditClicked = onNavigateToExpenseEdit
         )
         1 -> ExpenseScreen(
             state = expenseViewModel.state.collectAsState().value,
-            onEvent = expenseViewModel::onEvent
+            onEvent = expenseViewModel::onEvent,
+            onSaveClicked = navigateToExpenseOverview
         )
         2 -> ExpenseCategoryScreen(
             state = expenseCategoryViewModel.state.collectAsState().value,

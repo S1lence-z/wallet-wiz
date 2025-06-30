@@ -1,5 +1,6 @@
 package com.example.walletwiz.utils
 
+import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
@@ -16,9 +17,15 @@ object SummaryNotificationUtils {
         }
         val timeUnit = TimeUnit.DAYS
 
+        val inputData = Data.Builder()
+            .putString("frequency", frequency.name)
+            .build()
+
         val workRequest = PeriodicWorkRequestBuilder<NotificationSummaryWorker>(
             repeatInterval, timeUnit
-        ).build()
+        )
+            .setInputData(inputData)
+            .build()
 
         workManager.enqueueUniquePeriodicWork(
             "summary_notification",

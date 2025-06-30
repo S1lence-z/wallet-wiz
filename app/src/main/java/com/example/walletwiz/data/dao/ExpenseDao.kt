@@ -20,4 +20,22 @@ interface ExpenseDao {
 
     @Delete
     suspend fun deleteExpense(expense: Expense)
+
+    @Query("SELECT COALESCE(SUM(amount), 0.0) FROM expense WHERE DATE(created_at/1000, 'unixepoch', 'localtime') = DATE('now', 'localtime')")
+    suspend fun getTodayTotal(): Double
+
+    @Query("SELECT COALESCE(SUM(amount), 0.0) FROM expense WHERE DATE(created_at/1000, 'unixepoch', 'localtime') >= DATE('now', 'localtime', '-7 days')")
+    suspend fun getWeekTotal(): Double
+
+    @Query("SELECT COALESCE(SUM(amount), 0.0) FROM expense WHERE DATE(created_at/1000, 'unixepoch', 'localtime') >= DATE('now', 'localtime', 'start of month')")
+    suspend fun getMonthTotal(): Double
+
+    @Query("SELECT COUNT(*) FROM expense WHERE DATE(created_at/1000, 'unixepoch', 'localtime') = DATE('now', 'localtime')")
+    suspend fun getTodayExpenseCount(): Int
+
+    @Query("SELECT COUNT(*) FROM expense WHERE DATE(created_at/1000, 'unixepoch', 'localtime') >= DATE('now', 'localtime', '-7 days')")
+    suspend fun getWeekExpenseCount(): Int
+
+    @Query("SELECT COUNT(*) FROM expense WHERE DATE(created_at/1000, 'unixepoch', 'localtime') >= DATE('now', 'localtime', 'start of month')")
+    suspend fun getMonthExpenseCount(): Int
 }

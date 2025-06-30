@@ -16,23 +16,25 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.walletwiz.utils.Currency
-import com.example.walletwiz.utils.TimePeriod
 import com.example.walletwiz.states.ExpenseState
 import com.example.walletwiz.states.OverviewState
 import com.example.walletwiz.ui.components.PieChart
 import com.example.walletwiz.ui.components.PieChartSlice
+import com.example.walletwiz.ui.components.TimePeriodSelector
 import com.example.walletwiz.ui.components.toComposeColor
 import com.example.walletwiz.utils.formatCurrency
 import com.example.walletwiz.viewmodels.ExpenseOverviewViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.example.walletwiz.ui.components.DeleteConfirmationDialog
 
 @Composable
 fun OverviewScreen(
     modifier: Modifier = Modifier,
     state: OverviewState,
-    overviewViewModel: ExpenseOverviewViewModel
+    overviewViewModel: ExpenseOverviewViewModel,
+    onEditClicked: (ExpenseState) -> Unit = {}
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
     var expenseToDeleteState: ExpenseState? by remember { mutableStateOf(null) }
@@ -109,10 +111,7 @@ fun OverviewScreen(
                 ) { expense ->
                     ExpenseListItem(
                         expenseState = expense,
-                        onEditClicked = { expenseToEdit ->
-                            // TODO: Implement navigation or dialog for editing
-                            println("Edit clicked for: ${expenseToEdit.description}")
-                        },
+                        onEditClicked = onEditClicked,
                         onDeleteClicked = { currentExpenseToDelete ->
                             expenseToDeleteState = currentExpenseToDelete
                             showDeleteDialog = true
@@ -136,47 +135,6 @@ fun OverviewScreen(
                     expenseToDeleteState = null
                 }
             )
-        }
-    }
-}
-
-@Composable
-fun TimePeriodSelector(
-    selectedPeriod: TimePeriod,
-    onPeriodSelected: (TimePeriod) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val periods = listOf(
-        TimePeriod.DAY to "Day",
-        TimePeriod.WEEK to "Week",
-        TimePeriod.MONTH to "Month",
-        TimePeriod.ALL_TIME to "All"
-    )
-
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        periods.forEach { (period, label) ->
-            Button(
-                onClick = { onPeriodSelected(period) },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (selectedPeriod == period) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = if (selectedPeriod == period) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer
-                ),
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp) // Adjust padding
-            ) {
-                Text(text = label, fontWeight = if (selectedPeriod == period) FontWeight.Bold else FontWeight.Normal)
-            }
-        }
-        OutlinedButton(
-            onClick = { /* TODO: Implement Custom Date Picker (e.g., show DateRangePickerDialog) */ },
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
-        ) {
-            Text("Custom")
         }
     }
 }
@@ -254,28 +212,6 @@ fun ExpenseListItem(
             }
         }
     }
-}
-
-@Composable
-private fun DeleteConfirmationDialog(
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Confirm Deletion") },
-        text = { Text("Are you sure you want to delete this expense? This action cannot be undone.") },
-        confirmButton = {
-            Button(onClick = onConfirm) {
-                Text("Delete")
-            }
-        },
-        dismissButton = {
-            OutlinedButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
 }
 
 fun formatDate(timestamp: Long): String {

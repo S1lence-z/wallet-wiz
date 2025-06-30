@@ -22,6 +22,9 @@ interface TagDao {
     @Query("DELETE FROM expense_tag_cross_ref WHERE expenseId = :expenseId AND tagId = :tagId")
     suspend fun removeTagFromExpense(expenseId: Int, tagId: Int)
 
+    @Query("DELETE FROM expense_tag_cross_ref WHERE expenseId = :expenseId")
+    suspend fun deleteAllTagsForExpense(expenseId: Int?)
+
     @Transaction
     @Query("SELECT * FROM expense WHERE id = :expenseId")
     suspend fun getExpenseWithTags(expenseId: Int): ExpenseWithTags

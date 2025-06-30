@@ -19,10 +19,11 @@ import java.time.temporal.ChronoUnit
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DateSelector(
+    initialDate: Date = Date.from(Instant.now()),
     onDateSelected: (Date) -> Unit
 ) {
     val now = Instant.now()
-    var selectedDate by remember { mutableStateOf(Date.from(now)) }
+    var selectedDate by remember(initialDate) { mutableStateOf(initialDate) }
     val today = Date.from(now)
     val yesterday = Date.from(now.minus(1, ChronoUnit.DAYS))
 
@@ -39,11 +40,6 @@ fun DateSelector(
     )
     var showDatePicker by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        val currentDate = Date.from(Instant.now())
-        selectedDate = currentDate
-        onDateSelected(currentDate)
-    }
 
     Column(
         modifier = Modifier.fillMaxWidth(),

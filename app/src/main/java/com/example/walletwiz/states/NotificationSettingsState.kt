@@ -7,7 +7,7 @@ data class NotificationSettingsState(
 
     // Daily reminders
     val dailyRemindersEnabled: Boolean = false,
-    val dailyReminderTime: String = "19:00", // TODO: Saved as HH:mm for now, use a more suitable type later
+    val dailyReminderTime: String = "19:00",
 
     // Summary notifications
     val summaryNotificationEnabled: Boolean = false,

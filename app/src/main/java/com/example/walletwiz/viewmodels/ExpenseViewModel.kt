@@ -9,6 +9,7 @@ import com.example.walletwiz.data.entity.*
 import com.example.walletwiz.events.ExpenseEvent
 import com.example.walletwiz.states.ExpenseState
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +24,9 @@ class ExpenseViewModel(
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ExpenseState())
-    val state get() = _state
+    val state = _state.asStateFlow()
+    private val _isExpenseSaved = MutableStateFlow(false)
+    val isExpenseSaved = _isExpenseSaved.asStateFlow()
 
     init {
         loadCategories()
@@ -65,12 +68,27 @@ class ExpenseViewModel(
             is ExpenseEvent.CancelExpense -> {
                 setDefaultFields()
             }
+            is ExpenseEvent.SetExpenseForEdit -> {
+                _state.update {
+                    it.copy(
+                        id = event.expense.id,
+                        amount = event.expense.amount,
+                        expenseCategoryId = event.expense.expenseCategoryId,
+                        paymentMethod = event.expense.paymentMethod,
+                        description = event.expense.description,
+                        createdAt = event.expense.createdAt,
+                        categoryName = event.expense.categoryName,
+                        selectedTags = event.expense.selectedTags
+                    )
+                }
+            }
         }
     }
 
     private fun setDefaultFields() {
         _state.update {
             it.copy(
+                id = null,
                 amount = 0.0,
                 expenseCategoryId = 0,
                 paymentMethod = PaymentMethod.DEBIT_CARD,
@@ -80,29 +98,57 @@ class ExpenseViewModel(
                 selectedTags = emptyList()
             )
         }
+        _isExpenseSaved.value = false
+    }
+
+    fun resetSavedFlag() {
+        _isExpenseSaved.value = false
     }
 
     private fun saveExpense() {
         val state = _state.value
         if (state.amount > 0 && state.expenseCategoryId != 0) {
-            val newExpense = Expense(
-                amount = state.amount,
-                expenseCategoryId = state.expenseCategoryId,
-                createdAt = state.createdAt,
-                description = state.description,
-                paymentMethod = state.paymentMethod
-            )
             viewModelScope.launch(Dispatchers.IO) {
-                val expenseId = expenseDao.insertExpense(newExpense).toInt()
-
-                if (expenseId > 0) {
-                    if (state.selectedTags.isNotEmpty()) {
-                        for (tag in state.selectedTags) {
-                            tagDao.insertExpenseTagCrossRef(ExpenseTagCrossRef(expenseId, tag.id))
+                if (state.id == null) {
+                    // Create a new expense
+                    val newExpense = Expense(
+                        id = null,
+                        amount = state.amount,
+                        expenseCategoryId = state.expenseCategoryId,
+                        createdAt = state.createdAt,
+                        description = state.description,
+                        paymentMethod = state.paymentMethod
+                    )
+                    val expenseId = expenseDao.insertExpense(newExpense).toInt()
+                    Log.d("ExpenseViewModel", "Inserted expense with ID: $expenseId")
+                    if (expenseId > 0) {
+                        if (state.selectedTags.isNotEmpty()) {
+                            for (tag in state.selectedTags) {
+                                tagDao.insertExpenseTagCrossRef(ExpenseTagCrossRef(expenseId, tag.id))
+                            }
                         }
+                        _isExpenseSaved.value = true
+                    } else {
+                        Log.e("ExpenseViewModel", "Failed to insert expense")
                     }
                 } else {
-                    Log.e("ExpenseViewModel", "Failed to insert expense")
+                    // Update existing expense
+                    val existingExpense = Expense(
+                        id = state.id,
+                        amount = state.amount,
+                        expenseCategoryId = state.expenseCategoryId,
+                        createdAt = state.createdAt,
+                        description = state.description,
+                        paymentMethod = state.paymentMethod
+                    )
+                    expenseDao.updateExpense(existingExpense)
+                    tagDao.deleteAllTagsForExpense(state.id)
+                    if (state.selectedTags.isNotEmpty()) {
+                        for (tag in state.selectedTags) {
+                            tagDao.insertExpenseTagCrossRef(ExpenseTagCrossRef(state.id, tag.id))
+                        }
+                    }
+                    _isExpenseSaved.value = true
                 }
             }
         }
