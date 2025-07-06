@@ -8,8 +8,10 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.walletwiz.utils.Frequency
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "notification_settings")
 
@@ -47,32 +49,42 @@ class NotificationSettingsRepository(context: Context) {
     }
 
     suspend fun setNotificationsEnabled(enabled: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[PreferencesKeys.NOTIFICATIONS_ENABLED] = enabled
+        withContext(Dispatchers.IO) {
+            dataStore.edit { preferences ->
+                preferences[PreferencesKeys.NOTIFICATIONS_ENABLED] = enabled
+            }
         }
     }
 
     suspend fun setDailyRemindersEnabled(enabled: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[PreferencesKeys.DAILY_REMINDER_ENABLED] = enabled
+        withContext(Dispatchers.IO) {
+            dataStore.edit { preferences ->
+                preferences[PreferencesKeys.DAILY_REMINDER_ENABLED] = enabled
+            }
         }
     }
 
     suspend fun setReminderTime(time: String) {
-        dataStore.edit { preferences ->
-            preferences[PreferencesKeys.DAILY_REMINDER_TIME] = time
+        withContext(Dispatchers.IO) {
+            dataStore.edit { preferences ->
+                preferences[PreferencesKeys.DAILY_REMINDER_TIME] = time
+            }
         }
     }
 
     suspend fun setSummaryNotificationsEnabled(enabled: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[PreferencesKeys.SUMMARY_NOTIFICATIONS_ENABLED] = enabled
+        withContext(Dispatchers.IO) {
+            dataStore.edit { preferences ->
+                preferences[PreferencesKeys.SUMMARY_NOTIFICATIONS_ENABLED] = enabled
+            }
         }
     }
 
     suspend fun setSummaryNotificationFrequency(frequency: Frequency) {
-        dataStore.edit { preferences ->
-            preferences[PreferencesKeys.SUMMARY_NOTIFICATION_FREQUENCY] = frequency.name
+        withContext(Dispatchers.IO) {
+            dataStore.edit { preferences ->
+                preferences[PreferencesKeys.SUMMARY_NOTIFICATION_FREQUENCY] = frequency.name
+            }
         }
     }
 }
