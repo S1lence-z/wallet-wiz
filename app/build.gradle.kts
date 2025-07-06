@@ -1,5 +1,3 @@
-import com.android.build.gradle.internal.utils.isKspPluginApplied
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -64,13 +62,15 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     debugImplementation(libs.androidx.ui.tooling)
 
+    // --- Navigation ---
+    implementation(libs.androidx.navigation.compose.android)
+
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
     // Other
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-
-    //For GRAPH ---- NEEDED.
-    //implementation(libs.androidplot.core)
 
     // Room DB dependencies
     implementation(libs.room.runtime)
