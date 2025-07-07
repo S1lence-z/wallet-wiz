@@ -2,25 +2,25 @@ package com.example.walletwiz.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.walletwiz.data.dao.ExpenseDao
-import com.example.walletwiz.data.dao.ExpenseCategoryDao
-import com.example.walletwiz.data.dao.TagDao
 import com.example.walletwiz.data.entity.*
+import com.example.walletwiz.data.repository.IExpenseCategoryRepository
+import com.example.walletwiz.data.repository.IExpenseRepository
+import com.example.walletwiz.data.repository.ITagRepository
 import com.example.walletwiz.events.ExpenseEvent
 import com.example.walletwiz.states.ExpenseState
+import com.example.walletwiz.utils.Result
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.Dispatchers
 import android.util.Log
 import java.time.Instant
 import java.util.Date
 
 class ExpenseViewModel(
-    private val expenseDao: ExpenseDao,
-    private val expenseCategoryDao: ExpenseCategoryDao,
-    private val tagDao: TagDao
+    private val expenseRepository: IExpenseRepository,
+    private val expenseCategoryRepository: IExpenseCategoryRepository,
+    private val tagRepository: ITagRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ExpenseState())
@@ -108,9 +108,8 @@ class ExpenseViewModel(
     private fun saveExpense() {
         val state = _state.value
         if (state.amount > 0 && state.expenseCategoryId != 0) {
-            viewModelScope.launch(Dispatchers.IO) {
+            viewModelScope.launch {
                 if (state.id == null) {
-                    // Create a new expense
                     val newExpense = Expense(
                         id = null,
                         amount = state.amount,
@@ -119,20 +118,27 @@ class ExpenseViewModel(
                         description = state.description,
                         paymentMethod = state.paymentMethod
                     )
-                    val expenseId = expenseDao.insertExpense(newExpense).toInt()
-                    Log.d("ExpenseViewModel", "Inserted expense with ID: $expenseId")
-                    if (expenseId > 0) {
-                        if (state.selectedTags.isNotEmpty()) {
-                            for (tag in state.selectedTags) {
-                                tagDao.insertExpenseTagCrossRef(ExpenseTagCrossRef(expenseId, tag.id))
+                    when (val result = expenseRepository.insertOrUpdateExpense(newExpense)) {
+                        is Result.Success -> {
+                            val expenseId = result.data.toInt()
+                            Log.d("ExpenseViewModel", "Inserted expense with ID: $expenseId")
+                            if (expenseId > 0) {
+                                if (state.selectedTags.isNotEmpty()) {
+                                    for (tag in state.selectedTags) {
+                                        tagRepository.insertExpenseTagCrossRef(ExpenseTagCrossRef(expenseId, tag.id))
+                                    }
+                                }
+                                _isExpenseSaved.value = true
+                            } else {
+                                Log.e("ExpenseViewModel", "Failed to insert expense: Returned ID was not positive.")
                             }
                         }
-                        _isExpenseSaved.value = true
-                    } else {
-                        Log.e("ExpenseViewModel", "Failed to insert expense")
+                        is Result.Error -> {
+                            Log.e("ExpenseViewModel", "Failed to insert expense: ${result.exception.message}")
+                        }
+                        Result.Loading -> { }
                     }
                 } else {
-                    // Update existing expense
                     val existingExpense = Expense(
                         id = state.id,
                         amount = state.amount,
@@ -141,96 +147,162 @@ class ExpenseViewModel(
                         description = state.description,
                         paymentMethod = state.paymentMethod
                     )
-                    expenseDao.updateExpense(existingExpense)
-                    tagDao.deleteAllTagsForExpense(state.id)
-                    if (state.selectedTags.isNotEmpty()) {
-                        for (tag in state.selectedTags) {
-                            tagDao.insertExpenseTagCrossRef(ExpenseTagCrossRef(state.id, tag.id))
+                    when (val result = expenseRepository.insertOrUpdateExpense(existingExpense)) {
+                        is Result.Success -> {
+                            when (val deleteTagsResult = tagRepository.deleteAllTagsForExpense(state.id)) {
+                                is Result.Success -> {
+                                    if (state.selectedTags.isNotEmpty()) {
+                                        for (tag in state.selectedTags) {
+                                            tagRepository.insertExpenseTagCrossRef(ExpenseTagCrossRef(state.id, tag.id))
+                                        }
+                                    }
+                                    _isExpenseSaved.value = true
+                                }
+                                is Result.Error -> {
+                                    Log.e("ExpenseViewModel", "Failed to delete old tags: ${deleteTagsResult.exception.message}")
+                                }
+                                Result.Loading -> {}
+                            }
                         }
+                        is Result.Error -> {
+                            Log.e("ExpenseViewModel", "Failed to update expense: ${result.exception.message}")
+                        }
+                        Result.Loading -> { }
                     }
-                    _isExpenseSaved.value = true
                 }
             }
         }
     }
 
     private fun loadCategories() {
-        viewModelScope.launch(Dispatchers.IO) {
-            expenseCategoryDao.getAllCategories().collect { categories ->
+        viewModelScope.launch {
+            expenseCategoryRepository.getAllCategories().collect { categories ->
                 _state.update { it.copy(categories = categories) }
             }
         }
     }
 
     private fun createNewCategory(name: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val newCategory = ExpenseCategory(name = name, description = null, color = "#000000")
-            val id = expenseCategoryDao.insertCategory(newCategory).toInt()
-
-            if (id > 0) {
-                _state.update { currentState ->
-                    currentState.copy(
-                        expenseCategoryId = id
-                    )
+            when (val result = expenseCategoryRepository.insertOrUpdateCategory(newCategory)) {
+                is Result.Success -> {
+                    val id = result.data.toInt()
+                    if (id > 0) {
+                        _state.update { currentState ->
+                            currentState.copy(
+                                expenseCategoryId = id
+                            )
+                        }
+                    } else {
+                        Log.e("ExpenseViewModel", "Failed to insert category: Returned ID was not positive.")
+                    }
                 }
-            } else {
-                Log.e("ExpenseViewModel", "Failed to insert category: $name")
+                is Result.Error -> {
+                    Log.e("ExpenseViewModel", "Failed to insert category: ${result.exception.message}")
+                }
+                Result.Loading -> { }
             }
         }
     }
 
     private fun addTagToExpense(expenseId: Int, tagName: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             if (expenseId == 0) {
-                var tag = tagDao.getTagByName(tagName)
+                when (val tagResult = tagRepository.getTagByName(tagName)) {
+                    is Result.Success -> {
+                        var tag = tagResult.data
+                        if (tag == null) {
+                            when (val newTagResult = tagRepository.insertTag(ExpenseTag(name = tagName))) {
+                                is Result.Success -> tag = ExpenseTag(id = newTagResult.data.toInt(), name = tagName)
+                                is Result.Error -> {
+                                    Log.e("ExpenseViewModel", "Failed to insert new tag: ${newTagResult.exception.message}")
+                                    return@launch
+                                }
+                                Result.Loading -> { }
+                            }
+                        }
 
-                if (tag == null) {
-                    val newTagId = tagDao.insertTag(ExpenseTag(name = tagName))
-                    tag = ExpenseTag(id = newTagId.toInt(), name = tagName)
-                }
-
-                _state.update {
-                    if (it.selectedTags.any { t -> t.id == tag.id }) {
-                        it
-                    } else {
-                        it.copy(selectedTags = it.selectedTags + tag)
+                        tag?.let { nonNullTag ->
+                            _state.update {
+                                if (it.selectedTags.any { t -> t.id == nonNullTag.id }) {
+                                    it
+                                } else {
+                                    it.copy(selectedTags = it.selectedTags + nonNullTag)
+                                }
+                            }
+                        }
                     }
+                    is Result.Error -> {
+                        Log.e("ExpenseViewModel", "Failed to get tag by name: ${tagResult.exception.message}")
+                    }
+                    Result.Loading -> { }
                 }
             } else {
-                val existingTag = tagDao.getTagByName(tagName)
-                val tagId = existingTag?.id ?: tagDao.insertTag(ExpenseTag(name = tagName)).toInt()
+                when (val existingTagResult = tagRepository.getTagByName(tagName)) {
+                    is Result.Success -> {
+                        var tagId: Int? = existingTagResult.data?.id
+                        if (tagId == null) {
+                            when (val newTagResult = tagRepository.insertTag(ExpenseTag(name = tagName))) {
+                                is Result.Success -> tagId = newTagResult.data.toInt()
+                                is Result.Error -> {
+                                    Log.e("ExpenseViewModel", "Failed to insert new tag for cross-ref: ${newTagResult.exception.message}")
+                                    return@launch
+                                }
+                                Result.Loading -> { }
+                            }
+                        }
 
-                tagDao.insertExpenseTagCrossRef(ExpenseTagCrossRef(expenseId, tagId))
-
-                loadTagsForExpense(expenseId)
+                        tagId?.let { id ->
+                            when (val crossRefResult = tagRepository.insertExpenseTagCrossRef(ExpenseTagCrossRef(expenseId, id))) {
+                                is Result.Success -> loadTagsForExpense(expenseId)
+                                is Result.Error -> Log.e("ExpenseViewModel", "Failed to insert cross-ref: ${crossRefResult.exception.message}")
+                                Result.Loading -> {}
+                            }
+                        }
+                    }
+                    is Result.Error -> {
+                        Log.e("ExpenseViewModel", "Failed to get tag by name for cross-ref: ${existingTagResult.exception.message}")
+                    }
+                    Result.Loading -> { }
+                }
             }
         }
     }
 
     private fun removeTagFromExpense(expenseId: Int, tagId: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             if (expenseId == 0) {
                 _state.update {
                     it.copy(selectedTags = it.selectedTags.filterNot { it.id == tagId })
                 }
             } else {
-                tagDao.removeTagFromExpense(expenseId, tagId)
-                loadTagsForExpense(expenseId)
+                when (val result = tagRepository.removeTagFromExpense(expenseId, tagId)) {
+                    is Result.Success -> loadTagsForExpense(expenseId)
+                    is Result.Error -> Log.e("ExpenseViewModel", "Failed to remove tag from expense: ${result.exception.message}")
+                    Result.Loading -> { }
+                }
             }
         }
     }
 
     private fun loadTagsForExpense(expenseId: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val expenseWithTags = tagDao.getExpenseWithTags(expenseId)
-            _state.update { it.copy(selectedExpenseWithTags = expenseWithTags) }
+        viewModelScope.launch {
+            when (val result = tagRepository.getExpenseWithTags(expenseId)) {
+                is Result.Success -> _state.update { it.copy(selectedExpenseWithTags = result.data) }
+                is Result.Error -> Log.e("ExpenseViewModel", "Failed to load tags for expense: ${result.exception.message}")
+                Result.Loading -> { }
+            }
         }
     }
 
     private fun loadAllTags() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val allTags = tagDao.getAllTags()
-            _state.update { it.copy(allTags = allTags) }
+        viewModelScope.launch {
+            when (val result = tagRepository.getAllTags()) {
+                is Result.Success -> _state.update { it.copy(allTags = result.data) }
+                is Result.Error -> Log.e("ExpenseViewModel", "Failed to load all tags: ${result.exception.message}")
+                Result.Loading -> { }
+            }
         }
     }
 }
