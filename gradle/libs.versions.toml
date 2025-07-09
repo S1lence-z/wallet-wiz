@@ -1,10 +1,11 @@
 [versions]
-agp = "8.11.0"
+agp = "8.7.3"
 kotlin = "1.9.24"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 appcompat = "1.7.0"
+lifecycleRuntimeCompose = "2.9.1"
 material = "1.12.0"
 activity = "1.10.1"
 constraintlayout = "2.2.1"
@@ -17,9 +18,15 @@ activityCompose = "1.10.1"
 kspVersion="1.9.24-1.0.20"
 workRuntimeKtx = "2.10.2"
 koin = "4.1.0"
+navigation = "2.7.7"
+navigationFragmentKtx = "2.9.1"
+navigationUiKtx = "2.9.1"
+navigationComposeAndroid = "2.9.1"
+navigationComposeJvmstubs = "2.9.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version = "coreKtx" }
+androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
 androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version = "1.7.6" }
 androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version = "1.7.6" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
@@ -45,6 +52,13 @@ koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
 koin-core = { module = "io.insert-koin:koin-core" }
 koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
 koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
+# NAVIGATION
+androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigation" }
+androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigation" }
+navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }
+navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigationUiKtx" }
+androidx-navigation-compose-android = { group = "androidx.navigation", name = "navigation-compose-android", version.ref = "navigationComposeAndroid" }
+androidx-navigation-compose-jvmstubs = { group = "androidx.navigation", name = "navigation-compose-jvmstubs", version.ref = "navigationComposeJvmstubs" }
 
 # Adding the library to the version catalog
 # androidplot-core = { module = "com.androidplot:androidplot-core", version.ref = "androidplot" }

@@ -64,6 +64,11 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     debugImplementation(libs.androidx.ui.tooling)
 
+    // --- Navigation ---
+    implementation(libs.androidx.navigation.compose.android)
+
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
     // Other
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
