@@ -35,10 +35,6 @@ fun formatCurrency(amount: Double, currency: Currency): String {
             symbols = DecimalFormatSymbols(Locale.UK)
             pattern = "'£'#,##0.00"
         }
-        else -> {
-            val defaultFormat = java.text.NumberFormat.getCurrencyInstance(currency.locale)
-            return defaultFormat.format(amount)
-        }
     }
 
     val formatter = DecimalFormat(pattern, symbols)

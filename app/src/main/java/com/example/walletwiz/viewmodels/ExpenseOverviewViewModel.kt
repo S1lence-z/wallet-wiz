@@ -2,19 +2,21 @@ package com.example.walletwiz.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.walletwiz.data.dao.ExpenseCategoryDao
-import com.example.walletwiz.data.dao.ExpenseDao
 import com.example.walletwiz.data.entity.Expense
+import com.example.walletwiz.data.repository.IExpenseCategoryRepository
+import com.example.walletwiz.data.repository.IExpenseRepository
 import com.example.walletwiz.utils.TimePeriod
 import com.example.walletwiz.states.ExpenseState
 import com.example.walletwiz.states.OverviewState
+import com.example.walletwiz.utils.Result
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import android.util.Log
 import java.util.Calendar
 
 class ExpenseOverviewViewModel(
-    private val expenseDao: ExpenseDao,
-    private val expenseCategoryDao: ExpenseCategoryDao
+    private val expenseRepository: IExpenseRepository,
+    private val expenseCategoryRepository: IExpenseCategoryRepository
 ) : ViewModel() {
 
     private val _selectedTimePeriod = MutableStateFlow(TimePeriod.ALL_TIME)
@@ -25,8 +27,8 @@ class ExpenseOverviewViewModel(
     }
 
     val state: StateFlow<OverviewState> = combine(
-        expenseDao.getAllExpenses(),
-        expenseCategoryDao.getAllExpenseCategories(),
+        expenseRepository.getAllExpenses(),
+        expenseCategoryRepository.getAllCategories(),
         _selectedTimePeriod
     ) { allExpensesFromDb, categoriesList, currentPeriod ->
 
@@ -153,9 +155,10 @@ class ExpenseOverviewViewModel(
                 createdAt = expenseStateToDelete.createdAt
             )
 
-            try {
-                expenseDao.deleteExpense(expenseEntityToDelete)
-            } catch (_: Exception) {
+            when (expenseRepository.deleteExpense(expenseEntityToDelete)) {
+                is Result.Success -> { }
+                is Result.Error -> { }
+                Result.Loading -> { }
             }
         }
     }

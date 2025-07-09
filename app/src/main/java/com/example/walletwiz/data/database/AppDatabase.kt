@@ -6,9 +6,12 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.walletwiz.data.entity.*
 import com.example.walletwiz.data.Converters
 import com.example.walletwiz.data.dao.*
+import com.example.walletwiz.data.repository.ExpenseCategoryRepositoryImpl
+import com.example.walletwiz.utils.Result
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import android.util.Log
 
 @TypeConverters(Converters::class)
 @Database(entities = [Expense::class, ExpenseCategory::class, ExpenseTag::class, ExpenseTagCrossRef::class], version = 2, exportSchema = false)
@@ -39,7 +42,8 @@ abstract class AppDatabase : RoomDatabase() {
                         super.onCreate(db)
                         instance?.let { database ->
                             CoroutineScope(Dispatchers.IO).launch {
-                                insertDefaultCategories(database.expenseCategoryDao())
+                                val expenseCategoryRepository = ExpenseCategoryRepositoryImpl(database.expenseCategoryDao())
+                                insertDefaultCategories(expenseCategoryRepository)
                             }
                         }
                     }
@@ -49,7 +53,7 @@ abstract class AppDatabase : RoomDatabase() {
     }
 }
 
-suspend fun insertDefaultCategories(expenseCategoryDao: ExpenseCategoryDao) {
+suspend fun insertDefaultCategories(expenseCategoryRepository: ExpenseCategoryRepositoryImpl) {
     val defaultCategories = listOf(
         ExpenseCategory(name = "Uncategorized", description = "No category", color = "#FFFFE0"),
         ExpenseCategory(name = "Food", description = "Meals and groceries", color = "#FF5733"),
@@ -60,5 +64,9 @@ suspend fun insertDefaultCategories(expenseCategoryDao: ExpenseCategoryDao) {
         ExpenseCategory(name = "Shopping", description = "Clothing and accessories", color = "#e74c3c")
     )
 
-    expenseCategoryDao.insertDefaultCategories(defaultCategories)
+    when (val result = expenseCategoryRepository.insertDefaultCategories(defaultCategories)) {
+        is Result.Success -> Log.d("AppDatabase", "Default categories inserted successfully.")
+        is Result.Error -> Log.e("AppDatabase", "Failed to insert default categories: ${result.exception.message}")
+        Result.Loading -> { }
+    }
 }
