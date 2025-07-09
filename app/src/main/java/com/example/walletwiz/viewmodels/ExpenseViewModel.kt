@@ -26,7 +26,6 @@ class ExpenseViewModel(
     private val _state = MutableStateFlow(ExpenseState())
     val state = _state.asStateFlow()
     private val _isExpenseSaved = MutableStateFlow(false)
-    val isExpenseSaved = _isExpenseSaved.asStateFlow()
 
     init {
         loadCategories()
@@ -68,18 +67,11 @@ class ExpenseViewModel(
             is ExpenseEvent.CancelExpense -> {
                 setDefaultFields()
             }
-            is ExpenseEvent.SetExpenseForEdit -> {
-                _state.update {
-                    it.copy(
-                        id = event.expense.id,
-                        amount = event.expense.amount,
-                        expenseCategoryId = event.expense.expenseCategoryId,
-                        paymentMethod = event.expense.paymentMethod,
-                        description = event.expense.description,
-                        createdAt = event.expense.createdAt,
-                        categoryName = event.expense.categoryName,
-                        selectedTags = event.expense.selectedTags
-                    )
+            is ExpenseEvent.LoadExpenseForEdit -> {
+                if (event.expenseId != null) {
+                    loadExpenseForEdit(event.expenseId)
+                } else {
+                    setDefaultFields()
                 }
             }
         }
@@ -98,10 +90,6 @@ class ExpenseViewModel(
                 selectedTags = emptyList()
             )
         }
-        _isExpenseSaved.value = false
-    }
-
-    fun resetSavedFlag() {
         _isExpenseSaved.value = false
     }
 
@@ -289,7 +277,15 @@ class ExpenseViewModel(
     private fun loadTagsForExpense(expenseId: Int) {
         viewModelScope.launch {
             when (val result = tagRepository.getExpenseWithTags(expenseId)) {
-                is Result.Success -> _state.update { it.copy(selectedExpenseWithTags = result.data) }
+                is Result.Success -> {
+                    Log.d("ExpenseViewModel", "Loaded tags for expense ID $expenseId: ${result.data.tags}")
+                    _state.update {
+                        it.copy(
+                            selectedExpenseWithTags = result.data,
+                            selectedTags = result.data.tags
+                        )
+                    }
+                }
                 is Result.Error -> Log.e("ExpenseViewModel", "Failed to load tags for expense: ${result.exception.message}")
                 Result.Loading -> { }
             }
@@ -302,6 +298,41 @@ class ExpenseViewModel(
                 is Result.Success -> _state.update { it.copy(allTags = result.data) }
                 is Result.Error -> Log.e("ExpenseViewModel", "Failed to load all tags: ${result.exception.message}")
                 Result.Loading -> { }
+            }
+        }
+    }
+
+    private fun loadExpenseForEdit(expenseId: Int) {
+        viewModelScope.launch {
+            when (val result = expenseRepository.getExpenseById(expenseId)) {
+                is Result.Success -> {
+                    val expense = result.data
+                    if (expense == null) {
+                        Log.e("ExpenseViewModel", "Expense with ID $expenseId not found.")
+                        return@launch
+                    }
+
+                    // Update the state with the loaded expense details
+                    _state.update {
+                        it.copy(
+                            id = expense.id,
+                            amount = expense.amount,
+                            expenseCategoryId = expense.expenseCategoryId ?: 0,
+                            paymentMethod = expense.paymentMethod,
+                            description = expense.description,
+                            createdAt = expense.createdAt
+                        )
+                    }
+                    // Load the category name
+                    val categoryResult = expenseCategoryRepository.getCategoryById(expense.expenseCategoryId ?: 0)
+                    categoryResult.collect { category ->
+                        _state.update { it.copy(categoryName = category?.name ?: "Uncategorized") }
+                    }
+                    // Load the tags
+                    loadTagsForExpense(expenseId)
+                }
+                is Result.Error -> { }
+                is Result.Loading -> { }
             }
         }
     }

@@ -141,7 +141,7 @@ class ExpenseOverviewViewModel(
     }
 
     fun deleteExpense(expenseStateToDelete: ExpenseState) {
-        viewModelScope.launch { // No Dispatchers.IO here
+        viewModelScope.launch {
             if (expenseStateToDelete.id == null) {
                 return@launch
             }

@@ -3,16 +3,17 @@ package com.example.walletwiz.navigation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
+import com.example.walletwiz.events.ExpenseEvent
 import org.koin.androidx.compose.koinViewModel
 import com.example.walletwiz.ui.*
 import com.example.walletwiz.viewmodels.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavigationHost(
     navController: NavHostController = rememberNavController()
@@ -35,6 +36,7 @@ fun AppNavigationHost(
             startDestination = AppDestinations.OVERVIEW_ROUTE,
             modifier = Modifier.padding(innerPadding)
         ) {
+            // Overview Screen
             composable(route = AppDestinations.OVERVIEW_ROUTE) {
                 val overviewViewModel: ExpenseOverviewViewModel = koinViewModel()
                 val overviewState by overviewViewModel.state.collectAsStateWithLifecycle()
@@ -51,11 +53,18 @@ fun AppNavigationHost(
                 )
             }
 
+            // Add/Edit Expense Screen
             composable(
                 route = "${AppDestinations.ADD_EDIT_EXPENSE_ROUTE}?expenseId={expenseId}"
-            ) { _ ->
+            ) { backStackEntry ->
                 val expenseViewModel: ExpenseViewModel = koinViewModel()
                 val expenseState by expenseViewModel.state.collectAsStateWithLifecycle()
+                val expenseId = backStackEntry.arguments?.getString("expenseId")?.toIntOrNull()
+
+                // Load expense for editing
+                LaunchedEffect(expenseId) {
+                    expenseViewModel.onEvent(ExpenseEvent.LoadExpenseForEdit(expenseId))
+                }
 
                 ExpenseScreen(
                     state = expenseState,
@@ -66,6 +75,7 @@ fun AppNavigationHost(
                 )
             }
 
+            // Manage Expense Categories Screen
             composable(route = AppDestinations.CATEGORIES_ROUTE) {
                 val categoryViewModel: ExpenseCategoryViewModel = koinViewModel()
                 val categoryState by categoryViewModel.state.collectAsStateWithLifecycle()
@@ -75,6 +85,7 @@ fun AppNavigationHost(
                 )
             }
 
+            // Notification Settings Screen
             composable(route = AppDestinations.NOTIFICATION_SETTINGS_ROUTE) {
                 val settingsViewModel: NotificationSettingsViewModel = koinViewModel()
                 val settingsState by settingsViewModel.state.collectAsStateWithLifecycle()

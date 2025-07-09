@@ -18,5 +18,5 @@ sealed interface ExpenseEvent {
     data class RemoveTagFromExpense(val expenseId: Int, val tagId: Int) : ExpenseEvent
     data class LoadTagsForExpense(val expenseId: Int) : ExpenseEvent
 
-    data class SetExpenseForEdit(val expense: ExpenseState) : ExpenseEvent
+    data class LoadExpenseForEdit(val expenseId: Int?) : ExpenseEvent
 }
