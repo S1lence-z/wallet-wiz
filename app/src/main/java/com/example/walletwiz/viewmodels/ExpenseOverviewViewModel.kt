@@ -155,11 +155,9 @@ class ExpenseOverviewViewModel(
                 createdAt = expenseStateToDelete.createdAt
             )
 
-            when (val result = expenseRepository.deleteExpense(expenseEntityToDelete)) {
-                is Result.Success -> {
-                }
-                is Result.Error -> {
-                }
+            when (expenseRepository.deleteExpense(expenseEntityToDelete)) {
+                is Result.Success -> { }
+                is Result.Error -> { }
                 Result.Loading -> { }
             }
         }
