@@ -6,36 +6,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
-
-import com.example.walletwiz.ui.OverviewScreen
-import com.example.walletwiz.ui.ExpenseScreen
-import com.example.walletwiz.ui.ExpenseCategoryScreen
-import com.example.walletwiz.ui.NotificationSettingsScreen
-import com.example.walletwiz.viewmodels.ExpenseOverviewViewModel
-import com.example.walletwiz.viewmodels.ExpenseViewModel
-import com.example.walletwiz.viewmodels.ExpenseCategoryViewModel
-import com.example.walletwiz.viewmodels.NotificationSettingsViewModel
-import com.example.walletwiz.data.repository.ExpenseRepositoryImpl
-import com.example.walletwiz.data.repository.ExpenseCategoryRepositoryImpl
-import com.example.walletwiz.data.repository.TagRepositoryImpl
-import com.example.walletwiz.data.NotificationSettingsRepository
-import androidx.work.WorkManager
+import androidx.navigation.compose.*
+import org.koin.androidx.compose.koinViewModel
+import com.example.walletwiz.ui.*
+import com.example.walletwiz.viewmodels.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavigationHost(
-    navController: NavHostController = rememberNavController(),
-    expenseRepository: ExpenseRepositoryImpl,
-    expenseCategoryRepository: ExpenseCategoryRepositoryImpl,
-    tagRepository: TagRepositoryImpl,
-    notificationSettingsRepository: NotificationSettingsRepository,
-    workManager: WorkManager
+    navController: NavHostController = rememberNavController()
 ) {
     val bottomNavItems = NavigationItems.getBottomNavItems()
 
@@ -56,12 +36,7 @@ fun AppNavigationHost(
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(route = AppDestinations.OVERVIEW_ROUTE) {
-                val overviewViewModel: ExpenseOverviewViewModel = viewModel {
-                    ExpenseOverviewViewModel(
-                        expenseRepository = expenseRepository,
-                        expenseCategoryRepository = expenseCategoryRepository
-                    )
-                }
+                val overviewViewModel: ExpenseOverviewViewModel = koinViewModel()
                 val overviewState by overviewViewModel.state.collectAsStateWithLifecycle()
                 OverviewScreen(
                     state = overviewState,
@@ -79,13 +54,7 @@ fun AppNavigationHost(
             composable(
                 route = "${AppDestinations.ADD_EDIT_EXPENSE_ROUTE}?expenseId={expenseId}"
             ) { _ ->
-                val expenseViewModel: ExpenseViewModel = viewModel {
-                    ExpenseViewModel(
-                        expenseRepository = expenseRepository,
-                        expenseCategoryRepository = expenseCategoryRepository,
-                        tagRepository = tagRepository
-                    )
-                }
+                val expenseViewModel: ExpenseViewModel = koinViewModel()
                 val expenseState by expenseViewModel.state.collectAsStateWithLifecycle()
 
                 ExpenseScreen(
@@ -98,9 +67,7 @@ fun AppNavigationHost(
             }
 
             composable(route = AppDestinations.CATEGORIES_ROUTE) {
-                val categoryViewModel: ExpenseCategoryViewModel = viewModel {
-                    ExpenseCategoryViewModel(expenseCategoryRepository = expenseCategoryRepository)
-                }
+                val categoryViewModel: ExpenseCategoryViewModel = koinViewModel()
                 val categoryState by categoryViewModel.state.collectAsStateWithLifecycle()
                 ExpenseCategoryScreen(
                     state = categoryState,
@@ -109,12 +76,7 @@ fun AppNavigationHost(
             }
 
             composable(route = AppDestinations.NOTIFICATION_SETTINGS_ROUTE) {
-                val settingsViewModel: NotificationSettingsViewModel = viewModel {
-                    NotificationSettingsViewModel(
-                        notificationSettingsRepository = notificationSettingsRepository,
-                        workManager = workManager
-                    )
-                }
+                val settingsViewModel: NotificationSettingsViewModel = koinViewModel()
                 val settingsState by settingsViewModel.state.collectAsStateWithLifecycle()
                 NotificationSettingsScreen(
                     state = settingsState,
