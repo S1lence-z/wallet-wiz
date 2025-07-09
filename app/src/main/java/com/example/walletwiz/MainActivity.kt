@@ -28,6 +28,9 @@ import androidx.work.WorkManager
 
 import com.example.walletwiz.data.NotificationSettingsRepository
 import com.example.walletwiz.data.database.AppDatabase
+import com.example.walletwiz.data.repository.ExpenseCategoryRepositoryImpl
+import com.example.walletwiz.data.repository.ExpenseRepositoryImpl
+import com.example.walletwiz.data.repository.TagRepositoryImpl
 import com.example.walletwiz.ui.OverviewScreen
 import com.example.walletwiz.ui.ExpenseScreen
 import com.example.walletwiz.ui.ExpenseCategoryScreen
@@ -53,15 +56,23 @@ data class BottomNavItem(
 class MainActivity : ComponentActivity() {
 
     private val appDatabase by lazy { AppDatabase.invoke(this.applicationContext) }
+
+    private val expenseRepository by lazy { ExpenseRepositoryImpl(appDatabase.expenseDao()) }
+    private val expenseCategoryRepository by lazy { ExpenseCategoryRepositoryImpl(appDatabase.expenseCategoryDao()) }
+    private val tagRepository by lazy { TagRepositoryImpl(appDatabase.tagDao()) }
     private val notificationSettingsRepository by lazy { NotificationSettingsRepository(this.applicationContext) }
     private val workManager by lazy { WorkManager.getInstance(this.applicationContext) }
+
 
     private val expenseOverviewViewModelFactory by lazy {
         object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
                 if (modelClass.isAssignableFrom(ExpenseOverviewViewModel::class.java)) {
-                    return ExpenseOverviewViewModel(appDatabase.expenseDao(), appDatabase.expenseCategoryDao()) as T
+                    return ExpenseOverviewViewModel(
+                        expenseRepository = expenseRepository,
+                        expenseCategoryRepository = expenseCategoryRepository
+                    ) as T
                 }
                 throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
             }
@@ -74,9 +85,9 @@ class MainActivity : ComponentActivity() {
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
                 if (modelClass.isAssignableFrom(ExpenseViewModel::class.java)) {
                     return ExpenseViewModel(
-                        expenseDao = appDatabase.expenseDao(),
-                        expenseCategoryDao = appDatabase.expenseCategoryDao(),
-                        tagDao = appDatabase.tagDao()
+                        expenseRepository = expenseRepository,
+                        expenseCategoryRepository = expenseCategoryRepository,
+                        tagRepository = tagRepository
                     ) as T
                 }
                 throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
@@ -89,7 +100,8 @@ class MainActivity : ComponentActivity() {
             @Suppress("UNCHECKED_CAST")
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
                 if (modelClass.isAssignableFrom(ExpenseCategoryViewModel::class.java)) {
-                    return ExpenseCategoryViewModel(expenseCategoryDao = appDatabase.expenseCategoryDao()) as T
+                    // Pass the repository interface
+                    return ExpenseCategoryViewModel(expenseCategoryRepository = expenseCategoryRepository) as T
                 }
                 throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
             }
